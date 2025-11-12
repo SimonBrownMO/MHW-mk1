@@ -1,0 +1,29 @@
+### TOP POST
+
+# 2025-10-29
+    - Due to high interannual variability will need to have TWO strands of make stationary
+        - 1 to characterise the actual events that occur: doMakeStationary.R
+        - 2 to provide a dataset for the HT modelling: doMakeHTdata.R was: doMakeStationary_byYear.R
+
+
+
+Email Segolene 2025-10-13
+Hi Simon, 
+
+no I haven't, it's been on my mind, so thanks for prompting me.
+
+Here is the data underlying this page: https://wwwspice/~ofrd-mopa/maremon/webpage/index.html
+/data/users/ofrd-mopa/maremon/datasets/database_ofrd-mopa.csv
+
+With a script to plot the NWS (Northwest European shelf), UKV (SSTs centred around the UK, domain run operationally), North Sea with MHW categories defined on 1982-2012: 
+/home/users/segolene.berthou/workspace/ukep_plot/simple_plotting/marine_heatwave_ostiaTS_maremon.py
+
+You can combine the "NRT" with "CDR" . CDR has undergone quality checks (goes up to June 2024), but not NRT (July 2024-now).
+
+So I combine the two, e.g. 
+ostia_cdr_NWS_sst and ostia_nrt_NWS_sst (replace nws by UKV or North_Sea)
+
+But you can start with CDR. And with NWS.
+
+Looking forward to discussing the results!
+Ségolène

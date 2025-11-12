@@ -1,0 +1,14 @@
+*.rout*
+*.Rout*
+*.RSave
+*.Rsave
+*.rsave
+*.RData
+*.Rdata
+*.rdata
+*.pdf
+*.png
+*.ps
+DATA
+.Rhistory
+plots
