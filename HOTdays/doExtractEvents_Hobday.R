@@ -13,7 +13,7 @@
 # st_events <- paste(MSSAVEDIR,'Events/',sub('MMM',event.th.u,st_events),sep='')
 # st_events <- sub('.RData','_Hobday.RData', st_events)
 
-load(st_msdata01, verb=TRUE)
+# load(st_msdata01, verb=TRUE)
 
 load(st_qgam, verb=TRUE)
 th90    <- qdo(fit.qgam, newdata=data01, type='response', qu=0.9, predict)
@@ -30,18 +30,19 @@ data_clim$stime <- stime_clim
 
 th90_hob <- qdo(fit.qgam, newdata=data_clim, type='response', qu=0.9, predict)            
 th50_hob <- qdo(fit.qgam, newdata=data_clim, type='response', qu=0.5, predict)            
-th.hob   <- list(th50=th50_hob, th90=th90_hob)
+th5090   <- list(th50=th50_hob, th90=th90_hob)
 
 # sanity plot
 r1 <- range(data01$x)
  plot(data01$time, data01$x, pch=20, cex=.3, ylim=r1, main=sub('RRR', do.region, 'Observed temperature RRR') )    
 lines(data01$time, th90_hob, col='red', lwd=1)
+        readline("Continue?")
 
 ### extract events #####################################
 # calculate anomalies
-data01$an_hob <- data01$x - th90_hob
+data01$anomaly <- data01$x - th90_hob
 
- plot(data01$time, data01$an_hob, pch=20, cex=.3, main=sub('RRR', do.region, 'Hobday anomalies RRR') )    
+ plot(data01$time, data01$anomaly, pch=20, cex=.3, main=sub('RRR', do.region, 'Hobday anomalies RRR') )    
 grid()
 
 # compare my clim with segolens clim
@@ -50,11 +51,13 @@ th90_clim_sego <-  l.mhw[[do.region]] - l.mhw_an[[do.region]]
 i0 <- which(trunc(data01$time) >= 2000 & trunc(data01$time) <= 2004)
 plot(data01$time[i0],th90_hob[i0]-th90_clim_sego[i0], pch=20, cex=.3)
 grid()
+        readline("Continue?")
 
 r1 <- range(c(th90_clim_sego[i0], th90_hob[i0]), na.rm=TRUE)
 plot(data01$time[i0],th90_clim_sego[i0], pch=20, cex=.3, ylim=r1, main='Hobday 90th percentile climatology')
 lines(data01$time[i0],th90_hob[i0], col='red', lwd=2)
 grid()
+        readline("Continue?")
 
 ### SO the qgam 90th percentile clim is similar enough to Segolens climatology
 ### to allow comparison of event extraction, but my clim is smoother through
@@ -65,7 +68,7 @@ grid()
 
 ### extract events on Hobday anomalies
 i0     <- which(data01$isobs==1)
-ch_hob <- fn_extractEventsGeneric(data01$an_hob[i0], 0.0, 91)
+ch_hob <- fn_extractEventsGeneric(data01$anomaly[i0], 0.0, event.length)
 
 st.pdf.hseas   <- paste(sub('/Events','/Hotseason',dirname(st_events)),sub('.RData','.hotseason.pdf',basename(st_base)),sep='/')
 if(!dir.exists(dirname(st.pdf.hseas))) system(paste("mkdir -p",dirname(st.pdf.hseas) ) )
@@ -86,9 +89,9 @@ if(USEHOTSEASON) {
     # for(i in 1:dim(events01$obs$ch.sev)[2]) if (length(which(hs_doy %in% events01$obs$ch.doy[,i]))>0) ihs <- c(ihs,i)
     for(i in seq_along(events01$obs$ch.sev)) if (length(which(hs_doy %in% data01$doy[ch_hob$ch.i[,i]]))>0) ihs <- c(ihs,i)
                                                 # if any day of the event is within the hot season then keep the whole event
-    events01$obs$ch.pk$chains.l       <- events01$obs$ch.pk$chains.l[, ihs]
+    events01$obs$ch.pk$chains         <- events01$obs$ch.pk$chains[, ihs]
     events01$obs$ch.pk$absichains     <- events01$obs$ch.pk$absichains[ihs]
-    events01$obs$ch.pk$ichains.l      <- events01$obs$ch.pk$ichains.l[, ihs]
+    events01$obs$ch.pk$ichains        <- events01$obs$ch.pk$ichains[, ihs]
     events01$obs$ch.pk$indeciesByYear <- events01$obs$ch.pk$indeciesByYear[ihs]
     events01$obs$ch.pk$thresh.u       <- events01$obs$ch.pk$thresh.u
     events01$obs$ch.pk$chain.length   <- events01$obs$ch.pk$chain.length
@@ -106,7 +109,6 @@ if(USEHOTSEASON) {
     # events01$obs$ch.gmst              <- events01$obs$ch.gmst[ihs]
     events01$obs$ihs                  <- events01$obs$ihs
 
-   
     events01$events01_ally <- events01_ally
 
 } else {
@@ -116,12 +118,10 @@ if(USEHOTSEASON) {
 events01$info       <- events
 events01$hotseas    <- hotseas
 
-data01_an_hob <- data01$an_hob
-
-events01.hob <- events01
+# events01.hob <- events01
 if(!dir.exists(dirname(st_events))) system(paste("mkdir -p",dirname(st_events) ) )
 cat("Saved events to :", st_events, cr, cr )
-save(file=st_events, events01.hob, th.qgam, th.hob, data01_an_hob)
+save(file=st_events, events01, th5090)
 
 
 #

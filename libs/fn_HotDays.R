@@ -230,6 +230,7 @@ ChainsFromLaplace <- function(xdata.l, xdate, dtime=NULL, chain.lev.u, chain.len
     s1         <- xdata.l
     iremaining <- which(s1>=chain.lev.l)
     count      <- 0
+    maxlen     <- 0
 
     while(length(iremaining) > 0) {
         count <- count+1
@@ -262,9 +263,14 @@ ChainsFromLaplace <- function(xdata.l, xdate, dtime=NULL, chain.lev.u, chain.len
         ichains[[count]] <- c(bi,xi,fi)
         i2               <- c(max(c(1,bi)),xi,min(c(fi,length(s1))) ) # make sure indecies are within range of dim(xdata.l)[1]
         ###if(i2[3]-i2[1]>(2*chain.length-1)) cat(cr,"ERROR-ChainsFromUObsSjb3: chain length not long nough. Needs to be >",ceiling((i2[3]-i2[1])/2),cr,cr)
+        maxlen           <- max( c( maxlen, (i2[2]-i2[1]), (i2[3]-i2[2]) ))
 
         allChainLength <- 2*chain.length+2
-        achain                                                                <- rep(0,length=allChainLength)
+        achain         <- rep(0,length=allChainLength)
+        if((i2[2]-i2[1])>=chain.length | (i2[3]-i2[2])>=chain.length) {
+            cat(cr,"ERROR-ChainsFromGeneral: chain length not long nough. Needs to be >",ceiling(max(c( (i2[2]-i2[1]), (i2[3]-i2[2])))),cr,cr)
+            browser()
+        }
         achain[ (chain.length-(i2[2]-i2[1])) : (chain.length+(i2[3]-i2[2])) ] <- xdata.l[ i2[1]:i2[3] ]
         absi                                                                  <- xdata.i[ i2[1]  ]
 
@@ -292,6 +298,7 @@ ChainsFromLaplace <- function(xdata.l, xdate, dtime=NULL, chain.lev.u, chain.len
         if(all_count%%1000==0)cat("ChainsFromLaplace: HW count and points remaining:",all_count,length(iremaining),cr)
 
     } #end while
+    cat("ChainsFromGeneral: Maximum chain half-length found:",maxlen,cr)
 
     ichainsYr[[count]] <- ichains
 
@@ -321,8 +328,8 @@ ChainsFromGeneric <- function(x1,  th.x1, chain.length=chain.length, DOPLOT=FALS
     # check if there are any NA in data
     iNA <- which(is.na(x1))
     if(length(iNA)>0){
-        cat("ChainsFromGeneral: NA data found in x1.  Setting to 0",cr)
-        x1[iNA] <- 0
+        cat("ChainsFromGeneral: NA data found in x1.  Setting to th.x1-1",cr)
+        x1[iNA] <- th.x1-1
     }
     if(DOPLOT) {
         plot(xdate, x1,pch=46)
@@ -341,6 +348,7 @@ ChainsFromGeneric <- function(x1,  th.x1, chain.length=chain.length, DOPLOT=FALS
     s1         <- x1
     iremaining <- which(s1>=th.x1)
     count      <- 0
+    maxlen     <- 0
 
     while(length(iremaining) > 0) {
         count <- count+1
@@ -367,9 +375,15 @@ ChainsFromGeneric <- function(x1,  th.x1, chain.length=chain.length, DOPLOT=FALS
 
         ichains[[count]] <- c(bi,xi,fi)
         i2               <- c(max(c(1,bi)),xi,min(c(fi,length(s1))) ) # make sure indecies are within range of dim(x1)[1]
+        maxlen           <- max( c( maxlen, (i2[2]-i2[1]), (i2[3]-i2[2]) ))
 
         allChainLength <- 2*chain.length+2
-        achain                                                                <- rep(0,length=allChainLength)
+        achain         <- rep(th.x1-1,length=allChainLength) # need to set below the threshold
+
+        if((i2[2]-i2[1])>=chain.length | (i2[3]-i2[2])>=chain.length) {
+            cat(cr,"ERROR-ChainsFromGeneral: chain length not long nough. Needs to be >",ceiling(max(c( (i2[2]-i2[1]), (i2[3]-i2[2])))),cr,cr)
+            browser()
+        }
         achain[ (chain.length-(i2[2]-i2[1])) : (chain.length+(i2[3]-i2[2])) ] <- x1[ i2[1]:i2[3] ]
         absi                                                                  <- xdata.i[ i2[1]  ]
 
@@ -396,7 +410,8 @@ ChainsFromGeneric <- function(x1,  th.x1, chain.length=chain.length, DOPLOT=FALS
         if(all_count%%1000==0)cat("ChainsFromGeneral: HW count and points remaining:",all_count,length(iremaining),cr)
 
     } #end while
-
+    cat("ChainsFromGeneral: Maximum chain half-length found:",maxlen,cr)
+    
     ichainsYr[[count]] <- ichains
 
     all_chains2      <- unlist(all_chains)
@@ -590,6 +605,7 @@ fn_extractEvents <- function(data01, ch.lev.u, event.length) {
 
     # remove fails
     if(length(i_fail)>0) {
+        cat("fn_extractEvents: Removing",length(i_fail),"chains that were too short",cr)
         ch.pk$chains.l       <- ch.pk$chains.l[, -i_fail]
         ch.pk$absichains     <- ch.pk$absichains[-i_fail]
         ch.pk$ichains.l      <- ch.pk$ichains.l[, -i_fail]
@@ -652,7 +668,7 @@ fn_extractEventsGeneric <- function(x1, th.x1, event.length) {
 
     ### make wrt start
     # ChainsFromLaplace returns days above threshold.  Add on day before and day after
-    ch.idx  <- apply(ch.pk$chains,2,FUN=function(a,b) {return(which(a>=b))} , th.x1)
+    ch.idx  <- apply(ch.pk$chains,2,FUN=function(a,b) {return(which(a>b))} , th.x1)
     max.len <- max(sapply(ch.idx,length))
     ch.st.o <- array(NA,dim=c(max.len+2, length(ch.pk$absichains)))
     ch.age  <- array(NA,dim=dim(ch.st.o))
@@ -675,9 +691,10 @@ fn_extractEventsGeneric <- function(x1, th.x1, event.length) {
 
     # remove fails
     if(length(i_fail)>0) {
-        ch.pk$chains         <- ch.pk$chains[, -i_fail]
-        ch.pk$absichains     <- ch.pk$absichains[-i_fail]
-        ch.pk$ichains.l      <- ch.pk$ichains.l[, -i_fail]
+        cat("fn_extractEventsGeneric: Removing",length(i_fail),"chains that were too short",cr)
+        ch.pk$chains         <- ch.pk$chains      [, -i_fail]
+        ch.pk$absichains     <- ch.pk$absichains    [-i_fail]
+        ch.pk$ichains        <- ch.pk$ichains     [, -i_fail]
         ch.pk$indeciesByYear <- ch.pk$indeciesByYear[-i_fail]
 
         ch.i    <-    ch.i[, -i_fail]
@@ -719,6 +736,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
 
     cat("fn_extractEventsAbs: NB NB NB extracting chains/events with respect to a fixed absolute threshold",cr)
     cat("fn_extractEventsAbs: NB NB NB extracted chains/events now have the day before and day after included",cr)
+    cat("fn_extractEventsAbs: NB NB NB might want to move from ChainsFromLaplace to ChainsFromGeneral",cr)
 
     ## fix points where NAs
     ina <- which(is.na(data01$u))
@@ -746,6 +764,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
         idays <- ch.pk$ichains[1,i]:ch.pk$ichains[3,i]   # day before to day after
 
         if(length(idays) >= 3){
+        cat("fn_extractEventsAbs: Removing",length(i_fail),"chains that were too short",cr)
             # ch.st.l[1:(j2-j1+1)  , i] <- x.l[j1:j2]
                ch.i[1:(length(idays)), i] <- idays
             ch.st.l[1:(length(idays)), i] <-        x.l[idays]

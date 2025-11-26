@@ -41,7 +41,7 @@ source(paste(st.pwd,"/setup_MakeStationary.R",sep=''))
     o.info$ref_year      <- o.info$uyears[1]
     o.info$doy           <- as.integer(strftime(o.time, format = "%j"))
     o.info$maxdoy        <- 'crash' # max(o.info$doy,na.rm=TRUE)
-    o.info$sdoy          <- o.info$doy/unlist(lapply(o.info$years,days_in_year))
+    o.info$sdoy          <- o.info$doy/(unlist(lapply(o.info$years,days_in_year))+1)  # +1 so last day of year sdoy<1
     o.info$udoy          <- sort(unique(o.info$doy))
     o.info$imidyear      <- which(o.info$doy == 182)
     o.time.std           <- as.double(o.time)
@@ -60,12 +60,19 @@ source(paste(st.pwd,"/setup_MakeStationary.R",sep=''))
     # make required data structures and save pre-proc file
     l.o     <- list(time=o.time, data=l.mhw[which(names(l.mhw)!="date")], gmst=gmst.o$global.temp, info=o.info)
     om_data <- list(obs=l.o)
+
     save(file=                 MSconfig$files$st_preproc, om_data)
     cat("Pre-proc saved to :", MSconfig$files$st_preproc, cr)
 
     ### prepare data01 for MakeStationary ###############################################
-    
-    o.t2              <- om_data$obs$info$years + om_data$obs$info$sdoy
+    o.t2      <- om_data$obs$info$years
+    for(iy in 1:om_data$obs$info$nyears) {
+        yr             <- om_data$obs$info$uyears[iy]
+        iiy            <- which(om_data$obs$info$years == om_data$obs$info$uyears[iy])
+        o.t2[iiy]      <- om_data$obs$info$years[iiy] + (om_data$obs$info$doy[iiy] - 0.5)/days_in_year(yr)
+        cat(iy,yr,days_in_year(yr),cr)
+    }
+
     om.time.lim       <- range(trunc(c(o.t2)))
     om.time.std.param <- list(mean=mean(om.time.lim), max=max(om.time.lim), min=min(om.time.lim))
     om.time           <- c(o.t2)

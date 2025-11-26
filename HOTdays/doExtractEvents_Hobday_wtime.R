@@ -16,23 +16,25 @@
 load(st_qgam, verb=TRUE)
 th90     <- qdo(fit.qgam, newdata=data01, type='response', qu=0.9, predict)
 th50     <- qdo(fit.qgam, newdata=data01, type='response', qu=0.5, predict)
-th.hobwt <- list(th50=th50, th90=th90)
+th5090 <- list(th50=th50, th90=th90)
 
 # sanity plot
 r1 <- range(data01$x)
  plot(data01$time, data01$x, pch=20, cex=.3, ylim=r1, main=sub('RRR', do.region, 'Observed temperature RRR') )    
 lines(data01$time, th90, col='red', lwd=1)
+        readline("Continue?")
 
 ### extract events #####################################
 # calculate anomalies
-data01$an_hobwt <- data01$x - th90
+data01$anomaly <- data01$x - th90
 
- plot(data01$time, data01$an_hobwt, pch=20, cex=.3, main=sub('RRR', do.region, 'Hobday anomalies RRR') )    
+ plot(data01$time, data01$anomaly, pch=20, cex=.3, main=sub('RRR', do.region, 'Hobday anomalies RRR') )    
 grid()
+        readline("Continue?")
 
 ### extract events on Hobday anomalies
 i0     <- which(data01$isobs==1)
-ch_hobwt <- fn_extractEventsGeneric(data01$an_hobwt[i0], 0.0, 91)
+ch_hobwt <- fn_extractEventsGeneric(data01$anomaly[i0], 0.0, event.length)
 
 st.pdf.hseas   <- paste(sub('/Events','/Hotseason',dirname(st_events)),sub('.RData','.hotseason.pdf',basename(st_base)),sep='/')
 if(!dir.exists(dirname(st.pdf.hseas))) system(paste("mkdir -p",dirname(st.pdf.hseas) ) )
@@ -53,9 +55,9 @@ if(USEHOTSEASON) {
     # for(i in 1:dim(events01$obs$ch.sev)[2]) if (length(which(hs_doy %in% events01$obs$ch.doy[,i]))>0) ihs <- c(ihs,i)
     for(i in seq_along(events01$obs$ch.sev)) if (length(which(hs_doy %in% data01$doy[ch_hobwt$ch.i[,i]]))>0) ihs <- c(ihs,i)
                                                 # if any day of the event is within the hot season then keep the whole event
-    events01$obs$ch.pk$chains.l       <- events01$obs$ch.pk$chains.l[, ihs]
+    events01$obs$ch.pk$chains       <- events01$obs$ch.pk$chains[, ihs]
     events01$obs$ch.pk$absichains     <- events01$obs$ch.pk$absichains[ihs]
-    events01$obs$ch.pk$ichains.l      <- events01$obs$ch.pk$ichains.l[, ihs]
+    events01$obs$ch.pk$ichains      <- events01$obs$ch.pk$ichains[, ihs]
     events01$obs$ch.pk$indeciesByYear <- events01$obs$ch.pk$indeciesByYear[ihs]
     events01$obs$ch.pk$thresh.u       <- events01$obs$ch.pk$thresh.u
     events01$obs$ch.pk$chain.length   <- events01$obs$ch.pk$chain.length
@@ -72,7 +74,6 @@ if(USEHOTSEASON) {
     events01$obs$ch.duration          <- events01$obs$ch.duration[ihs]
     # events01$obs$ch.gmst              <- events01$obs$ch.gmst[ihs]
     events01$obs$ihs                  <- events01$obs$ihs
-
    
     events01$events01_ally <- events01_ally
 
@@ -83,12 +84,10 @@ if(USEHOTSEASON) {
 events01$info       <- events
 events01$hotseas    <- hotseas
 
-data01_an_hobwt <- data01$an_hobwt
-
-events01.hobwt <- events01
+# events01.hobwt <- events01
 if(!dir.exists(dirname(st_events))) system(paste("mkdir -p",dirname(st_events) ) )
 cat("Saved events to :", st_events, cr, cr )
-save(file=st_events, events01.hobwt, th.hobwt, data01_an_hobwt)
+save(file=st_events, events01, th5090)
 
 
 #

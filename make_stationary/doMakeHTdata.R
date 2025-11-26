@@ -48,30 +48,35 @@ readline("stop1")
     fit.gmst$fmla   <- fmla.gmst
     fit.gmst$ptiles <- c(0.5,0.9)
     q50       <- qdo(fit.gmst, 0.5, predict)
-    data01$x2 <- data01$x0 - q50
-        # plot(data01$time, data01$x, pch=20, cex=.3)
+    data01$x1 <- data01$x0 - q50
+        # plot(data01$time, data01$x0, pch=20, cex=.3)
         # points(data01$time, data01$x2+mean(data01$x), pch=20, cex=.3, col=4)
 
     # year as factor, using 90th quantile to represent summer annual variability
-    fmla.year       <- list(x2 ~ year, ~ 1 ) 
+    fmla.year       <- list(x1 ~ year, ~ 1 ) 
     fit.year        <- mqgam(fmla.year, data=data01, qu=c(0.5,0.9))
     fit.year$fmla   <- fmla.year
     fit.year$ptiles <- c(0.5,0.9)
     q90y      <- qdo(fit.year, 0.9, predict)
 
-    data01$x <- data01$x2 - q90y
-        # plot(data01$time, data01$x, pch=20, cex=.3)
+    data01$x <- data01$x1 - q90y    # BUT this makes winter worse interannual variability
+        # plot(data01$time, data01$x0, pch=20, cex=.3)
         # points(data01$time, q90y+mean(data01$x), pch=20, cex=.3, col=2)
-        # plot(data01$time, data01$x3,  pch=20, cex=.3, col=2)
+        # plot(data01$time, data01$x,  pch=20, cex=.3, col=2)
         # abline(h=0,col=4)
 
+    readline("stop1b") 
+
+    
+
+    # ? just do summer?
     # annual cycle
     fmla.htdata <- list(x ~ s(sdoy, bs='cc',k=ms.k$doy) +ti(sdoy, gmst, bs=c('cc','tp')), ~ s(sdoy)) 
     fit.htdata  <- mqgam(fmla.htdata, data=data01, qu=do.ptiles)
     fit.htdata$fmla   <- fmla.htdata
     fit.htdata$ptiles <- do.ptiles
-        # q90d      <- qdo(fit.sdoy, 0.9, predict)
-        # plot(data01$time, data01$x3, pch=20, cex=.3)
+        # q90d      <- qdo(fit.htdata, 0.9, predict)
+        # plot(data01$time, data01$x, pch=20, cex=.3)
         # points(data01$time, q90d, pch=20, cex=.3, col=2)
         # abline(h=0,col=1)
 
@@ -152,8 +157,6 @@ sysdate   <- Sys.time()
 stsysdate <- print(sysdate)
 cat("All Done doMakeStationary",cr)
 cat("###############################################################################",cr,cr)
-
-
 
 
 

@@ -1,5 +1,30 @@
 ### TOP POST
 
+# 2025-11-20
+    - v_hobday == fixed with year annual cycle 90th ptile  : uses doExtractEvents_Hobday.R
+    - v1       == v_hobday with linear trend with time     : uses doExtractEvents_Hobday_wtime.R
+    - v2       ==v_hobday with linear trend with GMST      : uses doExtractEvents_Hobday_wtime.R
+
+      # v_Hobday: match Hobday as best we can, event threshold 0.90, climC term linear with time
+      uses doExtractEvents_Hobday.R
+      ms.k              <- list(doy=12, gmst=4)
+      fmla.MSqgam       <- list(x ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
+      chosen.MSgpd.name <- "Hobday" #  best match to hobday
+      clim.year         <- 1996  # middle year of climatology period
+
+      v1: as v_Hobday but allowing linear trend with time but fixed annual cycle
+      ms.k              <- list(doy=12, gmst=4)
+      fmla.MSqgam       <- list(x ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
+      chosen.MSgpd.name <- "Hobday" #  best match to hobday
+      clim.year         <- NULL  # no fixed climatology
+
+      # v2: as for v1 but allowing linear trend with GMST but fixed annual cycle
+      ms.k              <- list(doy=12, gmst=4)
+      fmla.MSqgam       <- list(x ~ gmst  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
+      chosen.MSgpd.name <- "DLG" # doy + linear gmst
+      clim.year         <- NULL  # no fixed climatology
+
+
 # 2025-10-29
     - Due to high interannual variability will need to have TWO strands of make stationary
         - 1 to characterise the actual events that occur: doMakeStationary.R

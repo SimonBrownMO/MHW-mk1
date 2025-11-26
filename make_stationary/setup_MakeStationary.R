@@ -14,25 +14,50 @@ MSSAVEDIR0  <- paste(INDIR_O,'RRR/VVV/',sep='')  # RRR=region, VVV=version
 # random constants
 cr          <- '\n'
 deg0C       <- 273.16    # conversion to celcius
+datestamp   <- "2025-11-21" # "2025-10-29" # paste(format(Sys.time(), "%Y-%m-%d"),sep='_') 
 
-st_version  <- 'v1' # "v_Hobday"         # 
-    ## v_Hobday: match Hobday as best we can, event threshold 0.90, climC term linear with time
-    #ms.k              <- list(doy=12, gmst=4)
-    #fmla.MSqgam       <- list(x ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
-    #chosen.MSgpd.name <- "Hobday" #  best match to hobday
-    #clim.year         <- 1996  # middle year of climatology period
+st_version  <-  'v3' # 'v2' # "v1" # "v_Hobday" # 
 
-    # v1: as v_Hobday but allowing linear trend with time in the annual cycle
+if(st_version=='v_Hobday') {
+    # v_Hobday: match Hobday as best we can, event threshold 0.90, climC term linear with time
+    #           uses doExtractEvents_Hobday.R
+    ms.k              <- list(doy=12, gmst=4)
+    fmla.MSqgam       <- list(x ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
+    chosen.MSgpd.name <- "Hobday" #  best match to hobday
+    clim.year         <- 1996  # middle year of climatology period
+} else if(st_version=='v1') {
+    # v1: as v_Hobday but allowing linear trend with time but fixed annual cycle
+    #     uses doExtractEvents_Hobday_wtime.R
     ms.k              <- list(doy=12, gmst=4)
     fmla.MSqgam       <- list(x ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
     chosen.MSgpd.name <- "Hobday" #  best match to hobday
     clim.year         <- NULL  # no fixed climatology
+} else if(st_version=='v2') {
+    # v2: as for v1 but allowing linear trend with GMST but fixed annual cycle
+    #     uses doExtractEvents_Hobday_wtime.R
+    ms.k              <- list(doy=12, gmst=4)
+    fmla.MSqgam       <- list(x ~ gmst  +s(sdoy, bs='cc',k=ms.k$doy)  , ~ s(sdoy))
+    chosen.MSgpd.name <- "DLG" # doy + linear gmst
+    clim.year         <- NULL  # no fixed climatology
+} else if(st_version=='v3') {
+    # standard LST model for reference - not currently advocating it
+    ms.k              <- list(doy=12, gmst=4)
+    fmla.MSqgam       <- list(x ~ s(sdoy, bs="cc", k=ms.k$doy) + s(gmst, bs='tp', k=ms.k$gmst) +    ti(sdoy, gmst, bs=c("cc", "tp"))  , ~ s(sdoy))
+    chosen.MSgpd.name <- "DLG" # doy + linear gmst
+    clim.year         <- NULL  # no fixed climatology
+} else {
+    stop("st_version not recognised")
+}
 
-    # v3: very smooth gmst covariate
-    # ms.k         <- list(doy=12, gmst=4)
-    # fmla.MSqgam  <- list(x ~ s(sdoy, bs='cc',k=ms.k$doy) +s(gmst, bs=bs.cc, k=ms.k$gmst) +ti(sdoy, gmst, bs=c('cc','tp')), ~ s(sdoy))
+# # v3: very smooth spline on gmst covariate with interaction term with sdoy
+#  NOT CURRENTLY USED
+# x ~ s(sdoy, bs = "cc", k = ms.k$doy) + s(gmst, bs = bs.cc, k = ms.k$gmst) +    ti(sdoy, gmst, bs = c("cc", "tp"))
+# # seems to be just fitting to interannual noise
+# ms.k              <- list(doy=12, gmst=4)
+# fmla.MSqgam       <- list(x ~ s(sdoy, bs='cc',k=ms.k$doy) +s(gmst, bs=bs.cc, k=ms.k$gmst) +ti(sdoy, gmst, bs=c('cc','tp')), ~ s(sdoy))
+# chosen.MSgpd.name <- "SDTi.G0" #  match qgam
+# clim.year         <- NULL  # no fixed climatology
 
-datestamp   <- "2025-11-07" # "2025-10-29" # paste(format(Sys.time(), "%Y-%m-%d"),sep='_') 
 
 ### pre-proc data ###############################################################
 DODIAGPRE         <- TRUE
@@ -98,6 +123,7 @@ fmla.MSgpd$SD.G0     <- list(excess ~ s(sdoy, bs='cc',k=ms.k$doy)               
 fmla.MSgpd$ST.G0     <- list(excess ~                             +s(gmst, bs=bs.cc, k=ms.k$gmst)                                   , ~ 1 )
 fmla.MSgpd$S0.G0     <- list(excess ~ 1                                                                                             , ~ 1 )
 fmla.MSgpd$Hobday    <- list(excess ~ stime  +s(sdoy, bs='cc',k=ms.k$doy)                                                           , ~ 1 )
+fmla.MSgpd$DLG       <- list(excess ~ gmst   +s(sdoy, bs='cc',k=ms.k$doy)                                                           , ~ 1 )
 
 
 # chosen.MSgpd.name <- "SDTi.G0" #  OR NULL if want to dynamically select best fit.
