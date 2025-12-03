@@ -1,0 +1,326 @@
+# source("doMakeStationary_season.R")
+
+sysdate   <- Sys.time()
+cat("###############################################################################",cr)
+stsysdate <- print(sysdate)
+cat("Start doMakeStationary",cr)
+cat("###############################################################################",cr,cr)
+
+data01$x0   <- data01$x
+
+###############################################################################################
+### step 1: fit mixed model to get mean gmst term and baseline annual cycle
+###############################################################################################
+fm.gamm1    <- list(x0 ~ s(sdoy, bs="cc", k=12) +gmst, ~ 1 )
+ft.gamm1    <- gamm(   fm.gamm1[[1]],    data=data01 )
+ q.gamm1    <- predict(ft.gamm1$gam,  newdata=data01 ) 
+    #  plot(data01$time, data01$x0, pch=20, cex=.3, main='gmst')
+    # lines(data01$time, q.gamm1, col=2)
+data01$x1   <- data01$x0 - q.gamm1
+data01$year <- trunc(data01$time)
+
+###############################################################################################
+### define seasons
+    doy.seasons  <- find_doy_for_seasons(data01, ft.gamm1)
+    doy.midseas  <- NULL
+    sdoy.midseas <- NULL
+    i2001        <- which(data01$year==2001)
+    name.seas    <- names(doy.seasons)
+    iwhich.seas  <- which(name.seas==do.season)
+
+    iseas                                    <- which(data01$doy[i2001] %in% doy.seasons[[which(name.seas=='winter')]])
+    doy.midseas[which(name.seas=='winter')] <-  data01$doy[i2001][iseas][which.min(q.gamm1[i2001][iseas])]
+    sdoy.midseas[which(name.seas=='winter')] <- data01$sdoy[i2001][iseas][which.min(q.gamm1[i2001][iseas])]
+    iseas       <- which(data01$doy[i2001] %in% doy.seasons[[which(name.seas=='spring')]])
+    doy.midseas[which(name.seas=='spring')] <- round(median(data01$doy[i2001][iseas]))
+    sdoy.midseas[which(name.seas=='spring')] <- median(data01$sdoy[i2001][iseas])
+    iseas       <- which(data01$doy[i2001] %in% doy.seasons[[which(name.seas=='summer')]])
+    doy.midseas[which(name.seas=='summer')] <-  data01$doy[i2001][iseas][which.max(q.gamm1[i2001][iseas])]
+    sdoy.midseas[which(name.seas=='summer')] <- data01$sdoy[i2001][iseas][which.max(q.gamm1[i2001][iseas])]
+    iseas       <- which(data01$doy[i2001] %in% doy.seasons[[which(name.seas=='autumn')]])
+    doy.midseas[which(name.seas=='autumn')] <- round(median(data01$doy[i2001][iseas]))
+    sdoy.midseas[which(name.seas=='autumn')] <- median(data01$sdoy[i2001][iseas])
+
+    names(doy.midseas)  <- names(doy.seasons)
+    names(sdoy.midseas) <- names(doy.seasons)
+    print("mid-seasons DOY:")
+    print(doy.midseas)
+    print(sdoy.midseas)
+
+    # iseas       <- which(data01$doy %in% doy.seasons[[do.season]])
+    #  plot(data01$time[iseas],data01$x0[iseas], pch=20, cex=.3, main=paste('seasonal fit:',do.season))
+    # lines(data01$time[iseas],q.gamm1[iseas], col=2)
+###############################################################################################
+
+###############################################################################################
+### step 2: fit to seasonal anomalies all do.ptiles
+###############################################################################################
+iseas   <- which(data01$doy %in% doy.seasons[[do.season]])
+seasd01 <- data01[iseas,]
+    #  plot(seasd01$time, seasd01$x1, pch=20, cex=.3, main='x1')
+    #  plot(seasd01$doy,  seasd01$x1, pch=20, cex=.3, main='x1')
+
+## 2a fit stright to seasonal anomalies from q.gamm1
+fm.x1 <-     list(x1 ~ s(sdoy, bs="tp", k=ms.k$doy) , ~ 1 )
+ft.x1 <- mqgam(fm.x1[[1]], data=seasd01, qu=do.ptiles)
+ q.x1 <-   qdo(ft.x1, qu=do.ptiles,  predict ) 
+ft.x1$ptiles <- do.ptiles
+
+    #  plot(seasd01$time,  seasd01$x1, pch=20, cex=.3, main='x1')
+    # lines(seasd01$time, q.x1[[50]], col=2)
+    # lines(seasd01$time, q.x1[[90]], col=3)
+
+    #  plot(seasd01$doy,  seasd01$x1, pch=20, cex=.3, main='x1')
+    # lines(seasd01$doy, q.x1[[50]], col=2)
+    # lines(seasd01$doy, q.x1[[90]], col=3)
+
+
+## 2b fit to x1 relative to seas mean 
+## subtract seas mean for each year -> x1b
+x1b    <- seasd01$x1
+seas.y <- sort(unique(seasd01$year)) # trunc(intann.seas.anom[[iwhich.seas+4]])
+for(y in seas.y){
+    iy      <- which(seasd01$year==y)
+    x1b[iy] <- seasd01$x1[iy] - mean(seasd01$x1[iy])
+}
+seasd01$x1b <- x1b
+
+    # plot(seasd01$time, x1b, pch=20, cex=.3, main='x1b')
+    # plot(seasd01$doy,  x1b, pch=20, cex=.3, main='x1b')
+
+fm.x1b <-     list(x1b ~ s(sdoy, bs="tp", k=ms.k$doy) , ~ 1 )
+ft.x1b <- mqgam(fm.x1b[[1]], data=seasd01, qu=do.ptiles)
+ q.x1b <-   qdo(ft.x1b, qu=do.ptiles,  predict ) 
+ft.x1b$ptiles <- do.ptiles
+
+    #  plot(seasd01$time,  seasd01$x1b, pch=20, cex=.3, main='x1b')
+    # for(i in seq(10,90,by=10)) lines(seasd01$time, q.x1b[[i]], col=2)
+
+    #  plot(seasd01$doy,  seasd01$x1b, pch=20, cex=.3, main='x1b')
+    # pdoy <- sort(unique(seasd01$doy))
+    # for(i in seq(10,90,by=10)) lines(pdoy, q.x1b[[i]][seq_along(pdoy)], col=2)
+    
+st_qgam_x1 <- sub('.RData','_x1.RData',MSconfig$files$st_qgam)
+save(file=st_qgam_x1, ft.x1, fm.x1, q.x1, doy.seasons, doy.midseas, sdoy.midseas)
+
+st_qgam_x1b <- sub('.RData','_x1b.RData',MSconfig$files$st_qgam)
+save(file=st_qgam_x1b, ft.x1b, fm.x1b, q.x1b, doy.seasons, doy.midseas, sdoy.midseas)
+
+### x1 #########################################################################
+## q2p, p2q
+cat(cr)
+cat(cr,"Generating q2p",cr)
+st_q2p_x1 <- sub('.RData','_x1.RData',MSconfig$files$st_q2p)
+fn_gen_q2p(seasd01, st.q2p=st_q2p_x1, fit.qgam=ft.x1, st.qgam=st_qgam_x1)
+
+cat(cr,"Generating p2q",cr)
+load(st_q2p_x1, verb=TRUE)
+st_p2q_x1 <- sub('.RData','_x1.RData',MSconfig$files$st_p2q)
+fn_gen_p2q(seasd01, qgam.q2p.fn, ms.thgpd.u, st.p2q=st_p2q_x1, st.q2p=st_q2p_x1)
+
+## apply q2p to seasd01
+# seasd01$uqgam.x1 <- fn_apply_q2p(seasd01, qgam.q2p.fn, st.q2p=st_q2p_x1, SANITY=TRUE)
+u0 <- double(length(seasd01$x))
+for(i in seq_along(u0))  {
+    u0[i] <- qgam.q2p.fn[[i]](seasd01$x1[i])
+}
+seasd01$uqgam.x1 <- u0
+
+# calc MSgpd
+cat(cr,"Fitting EVGAM x1",cr)
+st_msgpd_x1 <- sub('.RData','_x1.RData',MSconfig$files$st_msgpd)
+# fn_fit_MSgpd(seasd01, ms.thgpd.u, fmla.MSgpd, chosen.MSgpd.name=chosen.MSgpd.name, fit.qgam=ft.x1, st.qgam=st_qgam_x1, st.msgpd=MSconfig$files$st_msgpd)
+
+fm.gpdSDG0       <- list(excess ~ s(sdoy, bs='tp',k=ms.k$doy) , ~ 1 )
+th.x1.gpd        <- q.x1[[90]]
+seasd01$excess   <- seasd01$x1 - th.x1.gpd
+seasd01.gpd      <- subset(seasd01, excess > 0)
+ft.x1gpdSDG0     <- evgam(fm.gpdSDG0, seasd01.gpd, family="gpd", trace=2)
+save(file=st_msgpd_x1, ft.x1gpdSDG0, th.x1.gpd)
+gpdpar.x1        <- predict(ft.x1gpdSDG0, newdata=seasd01, type="response")
+seasd01$scale.x1 <- gpdpar.x1$scale
+seasd01$shape.x1 <- gpdpar.x1$shape
+
+# apply MSgpd
+excess <- seasd01$excess
+u01    <- rep(0, length(excess))
+for(i in seq_along(excess)) {
+    if(excess[i]>0) {
+        sh          <- seasd01$shape.x1[i]
+        sc          <- seasd01$scale.x1[i]
+        u01[i] <- 1-(1-ms.thgpd.u)*pmax(0,(1+(sh*((excess[i])/sc))))^(-1/sh)
+    } else if(is.finite(seasd01$uqgam[i])) {
+        if(excess[i]<=0 & seasd01$uqgam[i]>ms.thgpd.u) {  # needed as sometimes q2p and evgam disagree
+            u01[i] <- ms.thgpd.u
+        }
+    }
+}
+seasd01$u.x1 <- u01
+
+### x1b #########################################################################
+## q2p, p2q
+cat(cr)
+cat(cr,"Generating q2p",cr)
+st_q2p_x1b <- sub('.RData','_x1b.RData',MSconfig$files$st_q2p)
+fn_gen_q2p(seasd01, st.q2p=st_q2p_x1b, fit.qgam=ft.x1b, st.qgam=st_qgam_x1b)
+
+cat(cr,"Generating p2q",cr)
+load(st_q2p_x1b, verb=TRUE)
+st_p2q_x1b <- sub('.RData','_x1b.RData',MSconfig$files$st_p2q)
+fn_gen_p2q(seasd01, qgam.q2p.fn, ms.thgpd.u, st.p2q=st_p2q_x1b, st.q2p=st_q2p_x1b)
+
+## apply q2p to seasd01
+# seasd01$uqgam.x1b <- fn_apply_q2p(seasd01, qgam.q2p.fn, st.q2p=st_q2p_x1b, SANITY=TRUE)
+u0 <- double(length(seasd01$x))
+for(i in seq_along(u0))  {
+    u0[i] <- qgam.q2p.fn[[i]](seasd01$x1b[i])
+}
+seasd01$uqgam.x1b <- u0
+
+# calc MSgpd
+cat(cr,"Fitting EVGAM x1b",cr)
+st_msgpd_x1b <- sub('.RData','_x1b.RData',MSconfig$files$st_msgpd)
+# fn_fit_MSgpd(seasd01, ms.thgpd.u, fmla.MSgpd, chosen.MSgpd.name=chosen.MSgpd.name, fit.qgam=ft.x1b, st.qgam=st_qgam_x1b, st.msgpd=MSconfig$files$st_msgpd)
+
+fm.gpdSDG0       <- list(excess ~ s(sdoy, bs='tp',k=ms.k$doy) , ~ 1 )
+th.x1b.gpd        <- q.x1b[[90]]
+seasd01$excess   <- seasd01$x1b - th.x1b.gpd
+seasd01.gpd      <- subset(seasd01, excess > 0)
+ft.x1bgpdSDG0     <- evgam(fm.gpdSDG0, seasd01.gpd, family="gpd", trace=2)
+save(file=st_msgpd_x1b, ft.x1bgpdSDG0, th.x1b.gpd)
+gpdpar.x1b        <- predict(ft.x1bgpdSDG0, newdata=seasd01, type="response")
+seasd01$scale.x1b <- gpdpar.x1b$scale
+seasd01$shape.x1b <- gpdpar.x1b$shape
+
+# apply MSgpd
+excess <- seasd01$excess
+u01    <- rep(0, length(excess))
+for(i in seq_along(excess)) {
+    if(excess[i]>0) {
+        sh          <- seasd01$shape.x1b[i]
+        sc          <- seasd01$scale.x1b[i]
+        u01[i] <- 1-(1-ms.thgpd.u)*pmax(0,(1+(sh*((excess[i])/sc))))^(-1/sh)
+    } else if(is.finite(seasd01$uqgam[i])) {
+        if(excess[i]<=0 & seasd01$uqgam[i]>ms.thgpd.u) {  # needed as sometimes q2p and evgam disagree
+            u01[i] <- ms.thgpd.u
+        }
+    }
+}
+seasd01$u.x1b <- u01
+
+### save #############################################################################
+st_out <- sub('.RData',paste('_',do.season,'.RData',sep=''),st_msdata01)
+save(file=st_out, seasd01, data01.std.param)
+cat(cr,"Saved msdata",cr,st_msdata01,cr)
+
+### PLOTS #############################################################################
+
+    p.rlx <- 1/nrow(seasd01)
+    qgpdx1.rlx  <- th.x1.gpd  + seasd01$scale.x1  * (p.rlx^(-seasd01$shape.x1)  -1)/seasd01$shape.x1
+    qgpdx1b.rlx <- th.x1b.gpd + seasd01$scale.x1b * (p.rlx^(-seasd01$shape.x1b) -1)/seasd01$shape.x1b
+
+      plot(seasd01$time, seasd01$x1, pch=20, cex=.3, main='x1')
+     lines(seasd01$time, q.x1[[10]], col=2)
+     lines(seasd01$time, q.x1[[50]], col=2)
+     lines(seasd01$time, q.x1[[90]], col=2)
+    points(seasd01$time, qgpdx1.rlx, col=4, pch=20, cex=.3)
+    grid()
+
+      plot(seasd01$doy, seasd01$x1, pch=20, cex=.3, main='x1')
+     lines(seasd01$doy, q.x1[[10]], col=2)
+     lines(seasd01$doy, q.x1[[50]], col=2)
+     lines(seasd01$doy, q.x1[[90]], col=2)
+    points(seasd01$doy, qgpdx1.rlx, col=4, pch=20, cex=.3)
+    grid()
+
+
+      plot(seasd01$time, seasd01$x1b, pch=20, cex=.3, main='x1b')
+     lines(seasd01$time, q.x1b[[10]], col=2)
+     lines(seasd01$time, q.x1b[[50]], col=2)
+     lines(seasd01$time, q.x1b[[90]], col=2)
+    points(seasd01$time, qgpdx1b.rlx, col=4, pch=20, cex=.3)
+    grid()
+
+      plot(seasd01$doy, seasd01$x1b, pch=20, cex=.3, main='x1b')
+     lines(seasd01$doy, q.x1b[[10]], col=2)
+     lines(seasd01$doy, q.x1b[[50]], col=2)
+     lines(seasd01$doy, q.x1b[[90]], col=2)
+    points(seasd01$doy, qgpdx1b.rlx, col=4, pch=20, cex=.3)
+    grid()
+
+    # q2p
+    dodoy <- doy.midseas[which(name.seas==do.season)]
+    i1s    <- which(seasd01$doy==dodoy)
+    test01 <- seasd01[i1s,]
+    q50s      <- qdo(ft.x1, 0.5,  predict, newdata=test01)
+    q90s      <- qdo(ft.x1, 0.9,  predict, newdata=test01)
+    q99s      <- qdo(ft.x1, 0.99, predict, newdata=test01)
+    load(st_q2p_x1, verb=TRUE)
+    test01$x <- q90s[1]
+    p17uqgam <- fn_apply_q2p(test01, qgam.q2p.fn[i1s], st.q2p=NULL, SANITY=FALSE)
+    plot(test01$gmst, p17uqgam, ty='l', pch=20, cex=.3, main="q2p sanity check q90s[1]",ylim=c(0,1))
+    grid()
+
+GOT TO HERE. 3/12/2025
+
+need to decide if need sanity check plots and if so which
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### general testing plots
+    stin   <- MSconfig$files$st_qgam
+    stdiag <- paste(dirname(stin),'plots',sub('MSqgam.RData','general.pdf',basename(stin)),sep='/')
+    fn_diag_general(savefile=stdiag, width=10, height=7, DOPAUSE=FALSE)
+
+if(DODIAGQGAM) {
+cat(cr,"DODIAGQGAM",cr)
+    stin <- MSconfig$files$st_qgam
+    stdiag <- paste(dirname(stin),'plots',sub('.RData','.pdf',basename(stin)),sep='/')
+    fn_diag_qgam(fit.qgam, savefile=stdiag, width=10, height=7, DOPAUSE=FALSE)
+}
+
+if(DODIAGMSGPD) {
+cat(cr,"DODIAGMSGPD",cr)
+    stin <- MSconfig$files$st_msgpd
+    stdiag <- paste(dirname(stin),'plots',sub('.RData','.pdf',basename(stin)),sep='/')
+    fn_diag_evgam(savefile=stdiag, st.msgpd=stin, width=10, height=7, DOPAUSE=FALSE)
+}
+
+if(DODIAGQ2P) {
+cat(cr,"DODIAGQ2P",cr)
+    stin <- MSconfig$files$st_q2p
+    stdiag <- paste(dirname(stin),'plots',sub('.RData','.pdf',basename(stin)),sep='/')
+    fn_diag_q2p(savefile=stdiag, width=10, height=7, DOPAUSE=FALSE)
+}
+
+tidy()
+
+cat(cr,cr)
+cat("###############################################################################",cr)
+sysdate   <- Sys.time()
+stsysdate <- print(sysdate)
+cat("All Done doMakeStationary",cr)
+cat("###############################################################################",cr,cr)
+
+
+
+
+
+
+#

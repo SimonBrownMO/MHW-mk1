@@ -1,5 +1,24 @@
 ### TOP POST
 
+# 2025-12-01
+    - new idaea.  
+        - subtract DOY+GMST from overfitted smooth.spline
+        - pick out mid season values as proxy for inter-annual variability for each season
+        - fit smooth fn through each season individually to get inter-annual variability term
+
+# 2025-11-27
+    - Need to have a careful think about what we want to do and when we want to do it
+    - How to deal with interannual variabitility is an open question with no real good solution
+    - winter and summer varaibility are very different and not necessarily in phase
+    - May need to have different treatments for different season
+    - May need to have different treatments for event detection and data for HT fitting
+    - This will all take quite a bit of time with no guarantee of uptake by the MHW community
+    - It also will be very complicated
+    - So perhaps at this point it would be best to focus on extended summer only
+    - but still many options to consider
+    - I think we will have to have both simple MS with linear trend & s(doy) 
+    - and something more complex, with some form of interannual variability term
+
 # 2025-11-20
     - v_hobday == fixed with year annual cycle 90th ptile  : uses doExtractEvents_Hobday.R
     - v1       == v_hobday with linear trend with time     : uses doExtractEvents_Hobday_wtime.R

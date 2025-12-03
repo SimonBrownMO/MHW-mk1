@@ -10,7 +10,15 @@ cat("###########################################################################
 cr     <- '\n'
 st.pwd <- system("pwd", intern=TRUE)
 
-do.region <- "NWS"  # one of:
+datestamp  <- "2025-11-28" 
+do.season  <- "summer"  # "spring" "summer" "autumn" "winter"
+st_version <-  'v4' # "v_Hobday" # 'v3' # "v1" # 
+    # v_Hobday: match Hobday as best we can, event threshold 0.90, climC term linear with time
+    # v1: as v_Hobday but allowing linear trend with time but fixed annual cycle
+    # v2: as for v1 but allowing linear trend with GMST but fixed annual cycle  x ~ gmst  +s(sdoy, bs='cc',k=ms.k$doy) 
+    # v3: standard LST model for reference - not currently advocating it
+    # v4: seasonal make stationayr
+do.region  <- "UKV"  # one of:
                     # "Global_.90S_to_90N."  
                     # "Global_.60S_to_60N."  
                     # "North_Atlantic_.CR." 
@@ -112,7 +120,7 @@ data01$x <- data01.regions[,paste('x.',do.region,sep='')]
 save(file=MSconfig$files$st_msdata01, data01, data01.regions, data01.std.param)
 
 ### call doMakeStationary.R ###############################################
-source(paste(st.pwd,"/doMakeStationary.R",sep=''))
+source(paste(st.pwd,"/doMakeStationary_season.R",sep=''))
 # source(paste(st.pwd,"/doMakeHTdata.R",sep=''))
 
 

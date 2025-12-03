@@ -776,6 +776,81 @@ trim_qgam <- function(fit.qgam){
 }
 
 # ##############################################################################
+### define seasons from a leap year in the middle
+find_doy_for_seasons <- function(data01, ft.gamm1, DOPLOT=TRUE) {
+    iy2  <- which(data01$time>=1999.9 & data01$time<2001.4)
+    iy2a <- which(data01$time>=1999.9 & data01$time<2000.8)
+    iy2b <- which(data01$time>=2000.4 & data01$time<2001.3)
+    clim50  <- predict(ft.gamm1$gam, newdata=data01[iy2,] )
+    clim50a <- predict(ft.gamm1$gam, newdata=data01[iy2a,] )
+    clim50b <- predict(ft.gamm1$gam, newdata=data01[iy2b,] )
+
+    iclim50a.n <- which.min(clim50a)
+    iclim50a.x <- which.max(clim50a)
+    iclim50b.n <- which.min(clim50b)
+    iclim50b.x <- which.max(clim50b)
+
+    mdoy.winter <- data01$doy[ iy2a[iclim50a.n] ]                                                # 65 
+    mdoy.summer <- data01$doy[ iy2a[iclim50a.x] ]                                                # 227
+    mdoy.spring <- data01$doy[ iy2a[iclim50a.n] + round((iy2a[iclim50a.x]-iy2a[iclim50a.n])/2) ] # 146
+    mdoy.autumn <- data01$doy[ iy2b[iclim50b.n] + round((iy2b[iclim50b.x]-iy2b[iclim50b.n])/2) ] # 329
+
+
+    diff.w2s <- (mdoy.summer       - mdoy.winter)
+    diff.s2w <- (mdoy.winter + 365 - mdoy.summer)
+
+    doy.spring <- (mdoy.spring -round(diff.w2s/4)) : ((mdoy.spring +round(diff.w2s/4)) )
+    doy.summer <- (mdoy.summer -round(diff.w2s/4)) : ((mdoy.summer +round(diff.s2w/4)) )
+    doy.autumn <- (mdoy.autumn -round(diff.s2w/4)) : ((mdoy.autumn +round(diff.s2w/4)) )
+    ig366 <- which(doy.autumn>366) # need to keep leap years
+    if(length(ig366)>0) {
+        doy.autumn[ig366] <- doy.autumn[ig366] - 366
+    }
+    doy.winter <- (mdoy.winter -round(diff.s2w/4)) : ((mdoy.winter +round(diff.w2s/4)) )
+
+    range(doy.spring)
+    range(doy.summer)
+    paste(doy.autumn[1], doy.autumn[length(doy.autumn)])
+    range(doy.winter)
+
+    ## trim so no overlap in seasons
+    doy.autumn2 <- doy.autumn[ which( !(doy.autumn %in% doy.summer) & !(doy.autumn %in% doy.winter) ) ]          
+    doy.summer2 <- doy.summer[ which( !(doy.summer %in% doy.spring) & !(doy.summer %in% doy.autumn2) ) ]
+    doy.spring2 <- doy.spring[ which( !(doy.spring %in% doy.summer2) & !(doy.spring %in% doy.winter) ) ]
+    doy.winter2 <- doy.winter[ which( !(doy.winter %in% doy.spring2) & !(doy.winter %in% doy.autumn2) ) ]
+
+    range(doy.spring2)
+    range(doy.summer2)
+    paste(doy.autumn2[1], doy.autumn2[length(doy.autumn2)])
+    range(doy.winter2)
+
+  if(DOPLOT) {
+    plot(data01$time[iy2], data01$x[iy2], pch=20, cex=.3, main="Defining seasons from mean annual cycle")
+    lines(data01$time[iy2a], clim50a, col=2, lwd=4)
+    lines(data01$time[iy2b], clim50b, col=4, lwd=8, lty=2)
+
+    abline(v=data01$time[iy2a][iclim50a.n], col=2, lty=1, lwd=4)
+    abline(v=data01$time[iy2a][iclim50a.x], col=2, lty=1, lwd=4)
+    abline(v=data01$time[iy2b][iclim50b.n], col=4, lty=2, lwd=8)
+    abline(v=data01$time[iy2b][iclim50b.x], col=4, lty=3, lwd=8)
+
+    abline(v=data01$time[iy2a][which(data01$doy[iy2a]==mdoy.spring)], col=3, lty=1)
+    abline(v=data01$time[iy2b][which(data01$doy[iy2b]==mdoy.autumn)], col=3, lty=1)
+    abline(v=data01$time[iy2b][iclim50b.n], col=1, lty=2, lwd=2)
+
+    points(data01$time[ iy2a[which(data01$doy[iy2a] %in% doy.winter2)] ],     rep(13,  length(doy.winter2)), pch=20, col=3, cex=.3)
+    points(data01$time[ iy2a[which(data01$doy[iy2a] %in% doy.summer2)] ],     rep(13,  length(doy.summer2)), pch=20, col=2, cex=.3)
+    points(data01$time[ iy2a[which(data01$doy[iy2a] %in% doy.spring2)] ],     rep(13.1,length(doy.spring2)), pch=20, col=4, cex=.3)
+    points(data01$time[ iy2b[which(data01$doy[iy2b] %in% doy.autumn2)] ],     rep(13.1,length(doy.autumn2)), pch=20, col=1, cex=.3)
+    points(data01$time[ iy2a[which(data01$doy[iy2a] %in% doy.winter2)]+366 ], rep(13,  length(doy.winter2)), pch=20, col=3, cex=.3) # 2000 is a leap year
+  }
+
+  doy.seasons <- list( spring=doy.spring2, summer=doy.summer2, autumn=doy.autumn2, winter=doy.winter2 )
+  return(doy.seasons)
+}
+
+
+# ##############################################################################
 # xxx <- function(){
 
 # }

@@ -14,9 +14,6 @@ MSSAVEDIR0  <- paste(INDIR_O,'RRR/VVV/',sep='')  # RRR=region, VVV=version
 # random constants
 cr          <- '\n'
 deg0C       <- 273.16    # conversion to celcius
-datestamp   <- "2025-11-21" # "2025-10-29" # paste(format(Sys.time(), "%Y-%m-%d"),sep='_') 
-
-st_version  <-  'v3' # 'v2' # "v1" # "v_Hobday" # 
 
 if(st_version=='v_Hobday') {
     # v_Hobday: match Hobday as best we can, event threshold 0.90, climC term linear with time
@@ -44,6 +41,12 @@ if(st_version=='v_Hobday') {
     ms.k              <- list(doy=12, gmst=4)
     fmla.MSqgam       <- list(x ~ s(sdoy, bs="cc", k=ms.k$doy) + s(gmst, bs='tp', k=ms.k$gmst) +    ti(sdoy, gmst, bs=c("cc", "tp"))  , ~ s(sdoy))
     chosen.MSgpd.name <- "DLG" # doy + linear gmst
+    clim.year         <- NULL  # no fixed climatology
+} else if(st_version=='v4') {
+    # standard LST model for reference - not currently advocating it
+    ms.k              <- list(doy=12, gmst=4)
+    fmla.MSqgam       <- list(x ~ NA  , ~ NA)
+    chosen.MSgpd.name <- "NA" # doy + linear gmst
     clim.year         <- NULL  # no fixed climatology
 } else {
     stop("st_version not recognised")

@@ -69,21 +69,26 @@ readline("Stop2 1")
     clim50  <- predict(ft.gamm1$gam, newdata=data01[iy2,] )
     clim50a <- predict(ft.gamm1$gam, newdata=data01[iy2a,] )
     clim50b <- predict(ft.gamm1$gam, newdata=data01[iy2b,] )
-    plot(data01$time[iy2], data01$x[iy2], pch=20, cex=.3, main="Defining seasons from mean annual cycle")
-    lines(data01$time[iy2a], clim50a, col=2, lwd=4)
-    lines(data01$time[iy2b], clim50b, col=4, lwd=8, lty=2)
+
     iclim50a.n <- which.min(clim50a)
     iclim50a.x <- which.max(clim50a)
     iclim50b.n <- which.min(clim50b)
     iclim50b.x <- which.max(clim50b)
-    abline(v=data01$time[iy2a][iclim50a.n], col=2, lty=1, lwd=4)
-    abline(v=data01$time[iy2a][iclim50a.x], col=2, lty=1, lwd=4)
-    abline(v=data01$time[iy2b][iclim50b.n], col=4, lty=2, lwd=8)
-    abline(v=data01$time[iy2b][iclim50b.x], col=4, lty=3, lwd=8)
+
     mdoy.winter <- data01$doy[ iy2a[iclim50a.n] ]                                                # 65 
     mdoy.summer <- data01$doy[ iy2a[iclim50a.x] ]                                                # 227
     mdoy.spring <- data01$doy[ iy2a[iclim50a.n] + round((iy2a[iclim50a.x]-iy2a[iclim50a.n])/2) ] # 146
     mdoy.autumn <- data01$doy[ iy2b[iclim50b.n] + round((iy2b[iclim50b.x]-iy2b[iclim50b.n])/2) ] # 329
+
+    plot(data01$time[iy2], data01$x[iy2], pch=20, cex=.3, main="Defining seasons from mean annual cycle")
+    lines(data01$time[iy2a], clim50a, col=2, lwd=4)
+    lines(data01$time[iy2b], clim50b, col=4, lwd=8, lty=2)
+
+    abline(v=data01$time[iy2a][iclim50a.n], col=2, lty=1, lwd=4)
+    abline(v=data01$time[iy2a][iclim50a.x], col=2, lty=1, lwd=4)
+    abline(v=data01$time[iy2b][iclim50b.n], col=4, lty=2, lwd=8)
+    abline(v=data01$time[iy2b][iclim50b.x], col=4, lty=3, lwd=8)
+
     abline(v=data01$time[iy2a][which(data01$doy[iy2a]==mdoy.spring)], col=3, lty=1)
     abline(v=data01$time[iy2b][which(data01$doy[iy2b]==mdoy.autumn)], col=3, lty=1)
     abline(v=data01$time[iy2b][iclim50b.n], col=1, lty=2, lwd=2)
