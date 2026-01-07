@@ -2,11 +2,14 @@
 
 st.pwd    <- system("pwd", intern=TRUE)
 
+ensure you do not want to run main_ExtractEvents_Hobday.R with
+    doExtractEvents_Hobday.R
+    doExtractEvents_Hobday_wtime.R
 
 ### setup variables #####################################
 source(paste(st.pwd,"/../setup_all.R",sep=''))
 event.th.u    <- 0.90    # definition of when a heatwave event begins/ends
-event.length  <- 80      # maximum allowed length of heatwave.  For wrt-peak this is fwd and bwd so events can be up to 2x longer than this (days)
+event.length  <- 180      # maximum allowed length of heatwave.  For wrt-peak this is fwd and bwd so events can be up to 2x longer than this (days)
 USEHOTSEASON  <- TRUE
 FINDHOTSEASON <- TRUE    # TRUE== determine hot season based on annual cycle greater than thHotSeason
 thHotSeason   <- 5.0     # annual range degC must exceed this if a hot season is to be defined
@@ -28,10 +31,10 @@ events$thHotSeason    <- thHotSeason
 do.region <- "NWS"  
 
 ### v_Hobday
-MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v_Hobday/MSref/ostia_cdr_nrt_regions.MSref.2025-11-07.RData"
+# MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v_Hobday/MSref/ostia_cdr_nrt_regions.MSref.2025-11-07.RData"
 
 ### v1
-# MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-10-15.RData"
+MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-26.RData"
 
 ### v2
 # MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-10-29.RData"

@@ -1,9 +1,12 @@
-# source("def_qgam_season.R")
+# source("def_qgam_lpfp.R")
 
-# 2025-11-28 
-# define model forms for seasonal MHW analysis
+# 2025-12-19
+# try using the previous n days as covariate los pass filter predictor "lpfp"
+# need to know the temperature anomaly with respect to the climatological previous n days
+# eg
+# pre-sst-cov = filter(actual(previous n days)) - filter(climatological(previous n days))
 
-# just look at summer to start
+kern          <- rep(1/kern.len, kern.len)
 
 
 
@@ -12,8 +15,6 @@ source("/home/users/simon.brown/extremes/conditional_extremes/HeffTawn_Hierarchi
 library(evgam,lib="/home/users/simon.brown/code/R/libs/R-4.4.1-2024_12_04/lib/R/library")
 library(mgcv)
 library(qgam)
-# library(evd)
-# library(float)
 source("../../libs/fn_MakeStationary.R")
 source("../../libs/fn_HotDays.R")
 
@@ -34,16 +35,6 @@ do.ptiles         <- seq(from=1, to=99, by=1)/100.0
 do.ptiles         <- seq(from=10, to=90, by=10)/100.0     
 
 ###############################################################################################
-### step 0: overfit to capture interannual variability
-###############################################################################################
-  # in fact simple smooth.spline the best
-     smsp.x0 <- smooth.spline(data01$stime,data01$x0, spar=0.01)
-data01$overf <- predict(smsp.x0, data01$stime)$y
-     plot(data01$time, data01$x0, pch=20, cex=.3, main='overfit')
-    lines(data01$time, data01$overf, col=2)
-    readline("Stop0")   
-
-###############################################################################################
 ### step 1: fit mixed model to get mean gmst term and baseline annual cycle
 ###############################################################################################
 # this does not work ft.gmst    <- gamm(   x ~ gmst,    data=data01 , random=list(stime=~1))
@@ -57,6 +48,53 @@ ft.gamm1    <- gamm(   fm.gamm1[[1]],    data=data01 )
     lines(data01$time, q.gamm1, col=2)
     readline("Stop 0 ")
 data01$x1   <- data01$x0 - q.gamm1
+
+
+### calculate low pass filter of sst
+i0 <- 1:(365*7)
+# kern          <- rep(1/kern.len, kern.len)
+kern.len <- seq(15,180, by=15)
+lp.q1 <- list()
+lp.x0 <- list()
+lp.dq1 <- list()
+plot(data01$time[i0], data01$x0[i0], pch=20, cex=.3, main='sst & lpfp')
+for(i in seq_along(kern.len)){
+  kern        <- rep(1/kern.len[i], kern.len[i])
+  lp.q1[[i]]  <- stats::filter(q.gamm1,   filter=kern, sides=1)
+  lp.x0[[i]]  <- stats::filter(data01$x0, filter=kern, sides=1)
+  lp.dq1[[i]] <- lp.x0[[i]] - lp.q1[[i]]
+  points(data01$time[i0], lp.dq1[[i]][i0]+12,col=i, pch=3, cex=.4)
+} 
+
+# i2 <- i0 + floor(kern.len/2)
+# i1 <- i2     + floor(kern.len/2) +1
+
+HERE 23.12.2025
+
+data01$lpfp <- lp.dq1[[which(kern.len==30)]]
+
+fm.gamm2    <- list(x0 ~ s(sdoy, bs="cc", k=12) +gmst +s(lpfp), ~ 1 )
+ft.gamm2    <- gamm(   fm.gamm2[[1]],    data=data01 )
+ q.gamm2    <- predict(ft.gamm2$gam,  newdata=data01 ) 
+ plot(data01$time, data01$x0, pch=20, cex=.3, main='sst & lpfp')
+lines(data01$time,   q.gamm2, col=2)
+
+q.gamm2  <- list()
+fm.gamm2 <- list(x0 ~ s(sdoy, bs="cc", k=12) +gmst +s(lpfp), ~ 1 )
+ plot(data01$time, data01$x0, pch=20, cex=.3, main='sst & lpfp')
+for(i in seq_along(kern.len)){
+  data01$lpfp <- lp.dq1[[i]]
+  ft.gamm2    <- gamm(   fm.gamm2[[1]],    data=data01 )
+  q.gamm2[[i]]<- predict(ft.gamm2$gam,  newdata=data01 ) 
+  lines(data01$time,   q.gamm2[[i]], col=i+1)
+}
+
+ plot(data01$time, data01$x0, pch=20, cex=.3, main='sst & lpfp')
+lines(data01$time,   q.gamm1, col=2)
+lines(data01$time,   q.gamm2[[1]], col=3)
+lines(data01$time,   q.gamm2[[4]], col=4)
+lines(data01$time,   q.gamm2[[8]], col='orange3')
+
 
 ###############################################################################################
 ### define seasons

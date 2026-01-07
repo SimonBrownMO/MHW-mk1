@@ -1,5 +1,16 @@
 ### TOP POST
 
+# 2026-01-07
+    - post break review
+    - the seasonal fit seems to work quite well
+        a) gamm1 with s(doy) + gmst
+        b) calculate and remove seasonal mean
+        - data is at least centred but year to year spread is huge
+    - Theo said he was interested in having a look 
+    - need to think through what actually is needed for HW modelling
+    - At my request richard renshaw has provided mixed layer depth.  
+        - Need to see if this has pridictive power for seasonal means and perhaps interannual variability
+
 # 2025-12-01
     - new idaea.  
         - subtract DOY+GMST from overfitted smooth.spline

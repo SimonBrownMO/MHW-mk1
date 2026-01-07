@@ -40,19 +40,19 @@ do.region <- "NWS"
 # DOHOBWTIME <- FALSE
 
 ### v1  _hobwt    trend in annual cycle
-# MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
-# st_sub     <- NULL
-# DOHOBWTIME <- TRUE
+MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-26.RData"
+st_sub     <- NULL
+DOHOBWTIME <- TRUE
 
 ### v2
 # MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
 # st_sub     <- NULL
 # DOHOBWTIME <- TRUE
 
-### v3
-MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v3/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
-st_sub     <- NULL
-DOHOBWTIME <- TRUE
+# ### v3
+# MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v3/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
+# st_sub     <- NULL
+# DOHOBWTIME <- TRUE
 
 
 cat(cr,"MSref.file",cr)

@@ -188,6 +188,7 @@ readline("Stop2 end")
 ### step 1b: determine interannual variabitily from over fit & mid season #####################
 ###############################################################################################
 doy.seasons <- find_doy_for_seasons(data01, ft.gamm1)
+readline("Stop2b end")
 doy.midseas <- NULL
 i2001       <- which(data01$year==2001)
 name.seas   <- names(doy.seasons)
@@ -219,16 +220,22 @@ plot(data01$time,      smsp.x0$y-q.gamm1, ty='n')
    lines(intann.seas.anom[[i+4]], intann.seas.anom[[i]], col=i+2, pch=20, cex=1)
   points(intann.seas.anom[[i+4]], intann.seas.anom[[i]], col=i+2, pch=20, cex=1)
 }
+readline("Stop1b 1")
 
 ### inter season dependence
 r1 <- range(-1.5,1)
 # names(doy.seasons) "spring" "summer" "autumn" "winter"
 plot(intann.seas.anom[[4]],       intann.seas.anom[[1]], pch=20, cex=1, xlim=r1, ylim=r1, xlab='winter', ylab='spring') # correlation 0.5036951
+readline("Stop1b 12")
 plot(intann.seas.anom[[1]],       intann.seas.anom[[2]], pch=20, cex=1, xlim=r1, ylim=r1, xlab='spring', ylab='summer')# correlation 0.2241365
+readline("Stop1b 13")
 plot(intann.seas.anom[[2]][1:45], intann.seas.anom[[3]], pch=20, cex=1, xlim=r1, ylim=r1, xlab='summer', ylab='autumn') # correlation 0.2815403
+readline("Stop1b 14")
 plot(intann.seas.anom[[3]], intann.seas.anom[[4]][2:46], pch=20, cex=1, xlim=r1, ylim=r1, xlab='autumn', ylab='winter') # correlation 0.500645
+readline("Stop1b 15")
 
 plot(intann.seas.anom[[4]], intann.seas.anom[[2]], pch=20, cex=1, xlim=r1, ylim=r1, xlab='winter', ylab='summer') # correlation 0.3624361
+readline("Stop1b 16")
 # NONE are significant
 
 ### decide the next fit
@@ -236,6 +243,7 @@ plot(intann.seas.anom[[4]], intann.seas.anom[[2]], pch=20, cex=1, xlim=r1, ylim=
 lines(data01$time, smsp.x0$y,  col=2)
 points(intann.seas.anom[[2+4]], intann.seas.anom[[2]]+12, col=3, pch=20, cex=1)
 abline(h=12)
+readline("Stop1b 17")
 
  plot(data01$time, data01$x1, pch=20, cex=.3, main='x1 residuals from step 1')
 points(intann.seas.anom[[1+4]], intann.seas.anom[[1]], col=3, pch=20, cex=2)
@@ -243,9 +251,12 @@ points(intann.seas.anom[[2+4]], intann.seas.anom[[2]], col=2, pch=20, cex=2)
 points(intann.seas.anom[[3+4]], intann.seas.anom[[3]], col=5, pch=20, cex=2)
 points(intann.seas.anom[[4+4]], intann.seas.anom[[4]], col=4, pch=20, cex=2)
 
+# difference too confusiog
+ plot(data01$time, smsp.x0$y-q.gamm1, ty='l')
 
-WHAT TO DO?
-
+readline("Stop1b 18")
+readline("WHAT TO DO?")
+# WHAT TO DO?
 
 
 
