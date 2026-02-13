@@ -1,4 +1,4 @@
-# source("def_qgam_mm.R")
+ # source("def_qgam_mm.R")
 
 ### following Woods 371 more closely for mixed model quantile GAM fitting
 #
@@ -24,7 +24,8 @@ source("../../libs/fn_HotDays.R")
 
 
 # st_msref <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v3/MSref/ostia_cdr_nrt_regions.MSref.2025-11-04.RData"
-st_msref <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
+# st_msref <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-11-21.RData"
+st_msref <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-11-26.RData"
 # st_msref <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-07.RData"
 
 load(st_msref, verb=TRUE)
@@ -129,6 +130,20 @@ readline("Stop2 1")
 
 
 ### END define seasons from a year in the middle
+data01$seasmean <- rep(NA, nrow(data01))
+i0 <- which(data01$doy %in% doy.winter2)
+data01$seasmean[i0] <- NA
+i1 <- which(data01$doy %in% doy.spring2)
+data01$seasmean[i1] <- NA
+i2 <- which(data01$doy %in% doy.summer2)
+data01$seasmean[i2] <- NA
+i3 <- which(data01$doy %in% doy.autumn2)
+data01$seasmean[i3] <- NA
+
+for (y in unique(data01$year)) {
+  iy <- which(data01$year==y)
+  data01$seasmean[iy] <- mean(data01$x[iy])
+}
 
 ## creat a factor for each season in each year
 data01$season <- rep(NA, nrow(data01))
@@ -154,7 +169,9 @@ ft.gamm2    <- gamm(   fm.gamm1[[1]],    data=data01, random=list(fseason=~1) )
  q.gamm2    <- predict(ft.gamm2$gam,  newdata=data01 )  
 plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM fseason random: ',fm.gamm1[[1]][3]))
 lines(data01$time, q.gamm2,  col=2)
+lines(data01$time, qx.gamm1, col=3)
 grid()
+# seemingly identical to ft.gamm1
 readline("Stop2 2")
 
 # as fixed effect fseason
@@ -163,43 +180,49 @@ ft.gamm3    <- gamm(   fm.gamm3[[1]],    data=data01 )
  q.gamm3    <- predict(ft.gamm3$gam,  newdata=data01 )  
  plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM fseason fixed: ',fm.gamm3[[1]][3]))
 lines(data01$time, q.gamm3,  col=2)
+lines(data01$time, qx.gamm1, col=3)
 grid()  
 readline("Stop2 3")
 
 # as fixed effect season BAD no real impact
-fm.gamm3    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst +season, ~ 1 )
-ft.gamm3    <- gamm(   fm.gamm3[[1]],    data=data01 )
- q.gamm3    <- predict(ft.gamm3$gam,  newdata=data01 )  
- plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM season fixed: ',fm.gamm3[[1]][3]))
-lines(data01$time, q.gamm3,  col=2)
+fm.gamm4    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst +season, ~ 1 )
+ft.gamm4    <- gamm(   fm.gamm4[[1]],    data=data01 )
+ q.gamm4    <- predict(ft.gamm4$gam,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM season fixed: ',fm.gamm4[[1]][3]))
+lines(data01$time, q.gamm4,  col=2)
+lines(data01$time, qx.gamm1, col=3)
 grid()  
-readline("Stop2 3b")
+# seemingly identical to ft.gamm1
+readline("Stop2 4")
 
 # as fixed effect seasmean Good but season discontinuities
-fm.gamm3    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst +seasmean, ~ 1 )
-ft.gamm3    <- gamm(   fm.gamm3[[1]],    data=data01 )
- q.gamm3    <- predict(ft.gamm3$gam,  newdata=data01 )  
- plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM seasmean fixed: ',fm.gamm3[[1]][3]))
-lines(data01$time, q.gamm3,  col=2)
+fm.gamm5    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst +seasmean, ~ 1 )
+ft.gamm5    <- gamm(   fm.gamm5[[1]],    data=data01 )
+ q.gamm5    <- predict(ft.gamm5$gam,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM seasmean fixed: ',fm.gamm5[[1]][3]))
+lines(data01$time, q.gamm5,  col=2)
+lines(data01$time, qx.gamm1, col=3)
 grid()  
-readline("Stop2 3c")
+readline("Stop2 5")
 
 # as theo effect seasmean BAD
 data01$aseasmean <- data01$seasmean - mean(data01$seasmean)
-fm.gamm3    <- list(x ~ s(sdoy, bs="cc", k=12, by=aseasmean) +gmst, ~ 1 )
-ft.gamm3    <- gamm(   fm.gamm3[[1]],    data=data01 )
- q.gamm3    <- predict(ft.gamm3$gam,  newdata=data01 )  
- plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM by=aseasmean: ',fm.gamm3[[1]][3]))
-lines(data01$time, q.gamm3,  col=2)
-grid()  
-readline("Stop2 3c")
+fm.gamm6    <- list(x ~ s(sdoy, bs="cc", k=12, by=aseasmean) +gmst, ~ 1 )
+ft.gamm6    <- gamm(   fm.gamm6[[1]],    data=data01 )
+ q.gamm6    <- predict(ft.gamm6$gam,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM by=aseasmean: ',fm.gamm6[[1]][3]))
+lines(data01$time, q.gamm6,  col=2)
+lines(data01$time, qx.gamm1, col=3)
+grid()  # TOTAL FAIL
+readline("Stop2 6")
 
 # doy-seasmean interaction, Prob best of this set but still season discontinuities
-fm.gamm3    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst + te(doy,aseasmean,bs=c('cc','cc')), ~ 1 )
-ft.gamm3    <- gamm(   fm.gamm3[[1]],    data=data01 )
- q.gamm3    <- predict(ft.gamm3$gam,  newdata=data01 )  
- plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',fm.gamm3[[1]][3]))
-lines(data01$time, q.gamm3,  col=2)
+fm.gamm7    <- list(x ~ s(sdoy, bs="cc", k=12) +gmst + te(doy,aseasmean,bs=c('cc','cc')), ~ 1 )
+ft.gamm7    <- gamm(   fm.gamm7[[1]],    data=data01 )
+ q.gamm7    <- predict(ft.gamm7$gam,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',fm.gamm7[[1]][3]))
+lines(data01$time, q.gamm7,  col=2)
+lines(data01$time, qx.gamm1, col=3)
 grid()  
 readline("Stop2 3d")
 
@@ -242,6 +265,87 @@ for (y in unique(data01$year)) {
 }
 
 
+### 2026.02.04 Theo's new random effect
+library(data.table)
+data01 <- data.table(data01)
+# introduce years
+data01[,year := trunc(time,0)]
+# factor year
+data01[,fYear := factor(year)]
+
+ft.theo1 <- gam(x ~ s(sdoy,bs="cc") # seasonal cycle
+                  + s(sdoy,fYear,bs="sz",id=1,xt=list(bs="cc")),
+                    knots=list(sdoy=c(0,1)),data=data01
+)
+q.theo1    <- predict(ft.theo1,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',ft.theo1$formula[3]))
+lines(data01$time, q.theo1,  col=2)
+lines(data01$time, qx.gamm1, col=3)
+grid()  
+readline("Stop2 2")
+
+ft.theo2 <- gam(x ~ s(sdoy,bs="cc") # seasonal cycle
+                  + s(fYear,bs="sz",xt=list(bs="cc")),
+                    knots=list(sdoy=c(0,1)),data=data01
+)
+ft.theo2b <- gam(x ~ s(sdoy,bs="cc") # seasonal cycle
+                  + s(fYear,bs="sz"),data=data01
+)
+q.theo2    <- predict(ft.theo2,  newdata=data01 )  
+q.theo2b   <- predict(ft.theo2b, newdata=data01 )  
+q.theo2c   <- predict(ft.theo2c, newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',ft.theo2$formula[3]))
+lines(data01$time, q.theo2,  col=2)
+lines(data01$time, qx.gamm1, col=3)
+grid()  
+
+ plot(data01$doy, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',ft.theo2$formula[3]))
+lines(data01$doy, q.theo2,  col=2)
+
+ft.regam1   <- gam(x ~ s(sdoy, bs="cc", k=12) + gmst + s(fYear, bs="re"), data=data01 )
+ q.regam1    <- predict(ft.regam1,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM fseason random: ',fm.gamm1[[1]][3]))
+lines(data01$time, q.regam1,  col=2)
+lines(data01$time, qx.gamm1, col=3)
+grid()
+
+ft.regam2   <- gam(x ~ s(sdoy, bs="cc", k=12) + gmst + s(fseason, bs="re"), data=data01 )
+ q.regam2    <- predict(ft.regam2,  newdata=data01 )  
+ plot(data01$time, data01$x, pch=20, cex=.3, main=paste('MM fseason random: ',fm.gamm1[[1]][3]))
+lines(data01$time, q.regam1,  col=4)
+lines(data01$time, q.regam2,  col=2)
+lines(data01$time, qx.gamm1, col=3)
+grid()
+
+readline("Stop2 2")
+ plot(data01$doy, data01$x, pch=20, cex=.3, main=paste('MM fseason random: ',fm.gamm1[[1]][3]))
+lines(data01$doy, q.regam1,  col=4)
+# lines(data01$doy, q.regam2,  col=2)
+grid()
+
+
+# 
+plot(data01$doy, data01$x, pch=20, cex=.3, main=paste('MM te(doy,aseasmean): ',ft.theo2$formula[3]), ty='n')
+lines(data01$doy, q.theo2,  col=2)
+
+iy2 <- which(data01$year %in% 2000:2001)
+y   <- seq_along(iy2)
+plot(y, data01[iy2,x],pch=46, xlim=c(0,720), ylim=range(data01$x))
+for(y1 in 1980:2000){
+    iy2 <- which(data01$year %in% y1:(y1+1))
+    y   <- seq_along(iy2)
+    points(y, data01[iy2,x],pch=46)
+    lines(y,q.theo2[iy2],col="red")
+}
+for(y1 in 1980:2000){
+    iy2 <- which(data01$year %in% y1:(y1+1))
+    y   <- seq_along(iy2)
+    lines(y,q.theo2c[iy2],col=3)
+}
+
+### notes
+# q.theo2 & q.theo2b very similar to q.regam1
+# both show discontinuities at year ends
 
 
 
@@ -250,4 +354,10 @@ for (y in unique(data01$year)) {
 
 
 
-#
+
+ft.theo1  <- gam(x ~ s(sdoy,bs="cc")              + s(sdoy,fYear,bs="sz",id=1,xt=list(bs="cc")), knots=list(sdoy=c(0,1)),data=data01)
+ft.theo2  <- gam(x ~ s(sdoy,bs="cc")              + s(fYear,     bs="sz",     xt=list(bs="cc")), knots=list(sdoy=c(0,1)),data=data01)
+ft.theo2b <- gam(x ~ s(sdoy,bs="cc")              + s(fYear,     bs="sz"),                                               data=data01)
+ft.theo2c <- gam(x ~ s(sdoy,bs="cc")              + s(fYear,     bs="re"),                                               data=data01)
+ft.regam1 <- gam(x ~ s(sdoy,bs="cc", k=12) + gmst + s(fYear,     bs="re"),                                               data=data01)
+

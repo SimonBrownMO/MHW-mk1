@@ -1,0 +1,22 @@
+2026/02/10
+    - theo3 seems to minimise the jumps at the end of year
+        ft.theo3   <- gam(x ~ s(sdoy,bs="cc") + s(sdoy,fYear,bs="sz",id=1), knots=list(sdoy=c(0,1)),data=data01)
+
+    - adding gmst to random effects seems to mess it all up with large negative gmst term being balanced with large +ve RE trend
+
+    - Multi step with RE
+        1. fit 
+            ft.gamm1 <- gamm(x ~ s(sdoy, bs="cc", k=12) +s(gmst,k=4))
+        2 subtract out just the gmst trend
+            q.gamm1   <- predict(ft.gamm1$gam,  newdata=data.table(sdoy=sdoyx, gmst=data01$gmst) )
+            data01$x1 <- data01$x - (q.gamm1 - mean(qx.gamm1))
+        3 fit RE model ti(sdoy,gmst) no effect in this model
+            ft2.theo3 <- gam(x1 ~ s(sdoy,bs="cc") + s(sdoy,fYear,bs="sz",id=1), knots=list(sdoy=c(0,1)),data=data01)
+            q.theo3   <- predict(ft2.theo3)
+        4 remove RE 
+            data01$x2 <- data01$x1 - q.theo3 # remove (sdoy,fYear) term
+
+2026/02/12
+    - climate model projections Jon Tinker's projections driven by the UKCP18 PPE ensemble, 1990-2098  https://os.copernicus.org/articles/20/835/2024/
+        moo ls moose:/devfc/rosie_HCCP_CO9_ap977_ar095_au084_r001i1p00000_02/field.nc.file/*Region_mean_timeseries_Daily.nc
+        moo get moose:/devfc/rosie_HCCP_CO9_ap977_ar095_au084_r001i1p00000_02/field.nc.file/*Region_mean_timeseries_Daily.nc /data/users/simon.brown/extremes/mhw/projections/dump
