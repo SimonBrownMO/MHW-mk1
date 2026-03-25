@@ -1,0 +1,122 @@
+ i am using the mgcv package in R to fit a GAM with a random effect for year. The model formula is:
+ fit 1 = gam(x ~ s(doy,bs="cc") +s(doy,fYear,bs="sz",id=1,by=ftype), data=data1)
+ where doy is the day of year, fYear is a factor for year
+
+ how can I plot the random effect for a given year and its uncertainty?
+Copilot said:
+Copilot
+Below is a clear explanation of how to extract and plot the year‑specific random effect from an mgcv GAM using s(doy, fYear, bs="sz"), along with its uncertainty.
+
+✅ Understanding what you fitted
+Your model:
+
+
+
+
+R
+fit1 <- gam(x ~ s(doy, bs = "cc") +
+               s(doy, fYear, bs = "sz", id = 1, by = ftype),
+            data = data1)
+The bs="sz" smooth creates factor‑smooth interactions: each level of fYear gets its own smooth deviation from the reference smooth (s(doy, bs="cc")). These deviations behave like random effects.
+
+To plot the smooth for a given year—including its confidence interval—you must use predict() with new data.
+
+plot.gam() does not plot individual factor‑smooth levels automatically.
+
+✅ How to plot the random‑effect smooth for a given year
+Suppose you want the smooth for year = "2015" and ftype = "A".
+
+1. Create new data over the DOY range
+
+
+
+R
+newd <- data.frame(
+  doy   = seq(1, 365, length = 200),
+  fYear = "2015",
+  ftype = "A"
+)
+``
+2. Get predictions and standard errors
+Use type = "terms" so that you can extract the specific smooth:
+
+
+
+
+R
+pr <- predict(fit1, newdata = newd, type = "terms", se.fit = TRUE)
+To find the column corresponding to the factor-smooth:
+
+
+
+
+Plain Text
+colnames(pr$fit)
+You will see something like:
+
+"s(doy, fYear)A.2015"
+Let’s assume it is stored as term "s(doy,fYear)" and we extract that column:
+
+
+
+
+R
+term <- "s(doy,fYear)"   # use the exact name from colnames(pr$fit)
+
+fit  <- pr$fit[, term]
+se   <- pr$se.fit[, term]
+3. Compute confidence interval
+
+
+
+R
+upper <- fit + 2 * se
+lower <- fit - 2 * se
+4. Plot
+
+
+
+Plain Text
+plot(newd$doy, fit, type="l", lwd=2,
+     ylab="Random effect smooth (year 2015)",
+     xlab="Day of year")
+
+lines(newd$doy, upper, lty=2)
+lines(newd$doy, lower, lty=2)
+📌 Optional: Add the “baseline” smooth
+If you want to show total smooth = baseline + year‑specific deviation:
+
+
+
+
+R
+pr_total <- predict(fit1, newdata=newd, type="terms", se.fit = TRUE)
+
+total_fit <- rowSums(pr_total$fit)
+total_se  <- sqrt(rowSums(pr_total$se.fit^2))
+🔍 Quick alternative: Using gratia package (recommended)
+gratia makes this much easier:
+
+
+
+
+R
+library(gratia)
+
+draw(fit1, select = "s(doy,fYear):2015")
+Or extract and plot manually:
+
+
+
+
+R
+smooth <- smooth_estimates(fit1, smooth = "s(doy,fYear)", level = "2015")
+draw(smooth)
+✔️ Summary
+To plot a GAM factor‑smooth random effect for a given year:
+
+Create new data for the desired year + DOY values
+Use predict(..., type="terms")
+Extract the specific smooth term
+Plot fit ± 2×SE
+(Optional) u

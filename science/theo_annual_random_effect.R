@@ -147,3 +147,10 @@ lines(y,SC[iy2],col="red")
 grid()
 
 # dev.off()
+
+
+ i am using the mgcv package in R to fit a GAM with a random effect for year. The model formula is:
+ fit 1 = gam(x ~ s(doy,bs="cc") +s(doy,fYear,bs="sz",id=1,by=ftype), data=data1)
+ where doy is the day of year, fYear is a factor for year
+
+ how can I plot the random effect for a given year and its uncertainty?

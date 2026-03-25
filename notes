@@ -1,5 +1,11 @@
 ### TOP POST
 
+# 2026-03-05
+## **Methods (GCV.Cp version — ready to paste)**
+
+We decomposed the daily temperature time series into physically interpretable components using a generalized additive modelling (GAM) framework implemented in the **mgcv** package for R. GAMs provide a flexible regression structure in which smooth terms are penalised and estimated using **generalized cross‑validation (GCV.Cp)** following the methodology described by Wood (2017). To isolate the externally forced climate‑change signal, we included **global mean surface temperature (GMST)** as a covariate representing the long‑term forced trend. The **seasonal cycle** was represented using a smooth function of day‑of‑year. Interannual variability was modelled as a **random effect for each year**, while year‑specific departures from the mean seasonal cycle were captured using **factor–smooth interactions**, which produce a separate smooth curve for each year while enforcing identifiability through constraints on the basis coefficients. This factor‑smooth construction is formally defined in the mgcv documentation for `bs="fs"` and `bs="sz"` smooths, which implement random wiggly curves and sum‑to‑zero constrained deviations, respectively. The resulting structure follows the hierarchical GAM framework in which a global smooth trend is combined with group‑ or year‑level smooth deviations; this approach is widely used in the modelling of functional interannual variations, as discussed in Pedersen et al.’s hierarchical GAM work summarised in the literature on grouped factor–smooth modelling. Together, these components allow the model to attribute long‑term changes to forced climate trends while separately estimating interannual variability and year‑specific seasonal anomalies. [\[r-universe.dev\]](https://r-universe.dev/manuals/mgcv.html) [\[stat.ethz.ch\]](https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/factor.smooth.html), [\[rdrr.io\]](https://rdrr.io/cran/mgcv/man/factor.smooth.html) [\[stackoverflow.com\]](https://stackoverflow.com/questions/56243355/mgcv-specifying-factor-smoother-interactions-for-global-grouped-smooths)
+
+
 # 2026-01-07
     - post break review
     - the seasonal fit seems to work quite well
@@ -82,3 +88,7 @@ But you can start with CDR. And with NWS.
 
 Looking forward to discussing the results!
 Ségolène
+
+
+
+

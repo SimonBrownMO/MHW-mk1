@@ -1,3 +1,18 @@
+2026/01/22
+    - email from Theo
+        ft1.regamH1d <- gam(x ~ ftype +s(sdoy,bs="cc",k=24,by=ftype) +s(gmst) +ti(sdoy,gmst,bs=c("cc","tp")) +s(sdoy,fYear,bs="sz",id=1,by=ftype),
+                                data=data01, method="GCV.Cp", select=TRUE, min.sp=min_sp_floor )
+
+        Thanks for the update. Model looks fine, but I have to admit I havent used min.sp before or GCV.Cp. Do these make a big difference? 
+
+        About the difference between obs and model: perhaps remove the "id=1" part and see if that makes a difference? Its supposed to 
+        force all smooths to have the same smoothing parameter, but perhaps we dont want the obs and the model to have the same sp. It 
+        will be slower but Id be interested to see if it solves the large uncertainty issue.
+
+        Not sure "fs" will make a difference. From memory, "sz"  was the new "fs", specifically designed to separate a main effect 
+        from deviations, so I would stick with "sz".
+
+
 2026/02/10
     - theo3 seems to minimise the jumps at the end of year
         ft.theo3   <- gam(x ~ s(sdoy,bs="cc") + s(sdoy,fYear,bs="sz",id=1), knots=list(sdoy=c(0,1)),data=data01)
@@ -17,6 +32,37 @@
             data01$x2 <- data01$x1 - q.theo3 # remove (sdoy,fYear) term
 
 2026/02/12
-    - climate model projections Jon Tinker's projections driven by the UKCP18 PPE ensemble, 1990-2098  https://os.copernicus.org/articles/20/835/2024/
+    - climate model projections Jon Tinkers projections driven by the UKCP18 PPE ensemble, 1990-2098  https://os.copernicus.org/articles/20/835/2024/
         moo ls moose:/devfc/rosie_HCCP_CO9_ap977_ar095_au084_r001i1p00000_02/field.nc.file/*Region_mean_timeseries_Daily.nc
         moo get moose:/devfc/rosie_HCCP_CO9_ap977_ar095_au084_r001i1p00000_02/field.nc.file/*Region_mean_timeseries_Daily.nc /data/users/simon.brown/extremes/mhw/projections/dump
+
+2026/02/27
+
+### H models have by year random effects
+Feb 24 17:35 GAM_random_effect_regamH1d.pdf
+    # good 
+    min_sp_floor <- c(0,0, 0.5,0.5, 0,0, 1,1,1,1)
+    ft1.regamH1d <- gam(x ~ ftype +s(sdoy,bs="cc",k=24,by=ftype) +s(gmst) +ti(sdoy,gmst,bs=c("cc","tp")) +s(sdoy,fYear,bs="sz",id=1,by=ftype), 
+                        data=data01, method="GCV.Cp", select=TRUE, min.sp=min_sp_floor )    
+Feb 26 15:34 GAM_random_effect_regamH1b0.pdf
+    # bad
+Feb 26 15:34 GAM_random_effect_regamH1b3.pdf
+    # bad
+Feb 26 15:34 GAM_random_effect_regamH1b3c.pdf
+    # good - almost identical to regamH1d - unsurprisingly
+    fmla     <- x ~ ftype +s(sdoy,bs="cc",k=24,by=ftype) +s(gmst) +ti(sdoy,gmst,bs=c("cc","tp")) +s(sdoy,fYear,bs="sz",id=1,by=ftype)
+    min_sp_floor[grepl("fYear",      sp_names)]   <- 1                             # choose your floor (e.g., 2)
+    min_sp_floor[grepl("\\(gmst\\)", sp_names)]   <- 0.5                           # 0.2 leaves some inter-decadal variability in the gmst smooth
+    ft1.regamH1b3c <- gam(fmla, data=data01, method="GCV.Cp", select=TRUE, min.sp=min_sp_floor)
+Feb 26 15:43 GAM_random_effect_regamH1b2.pdf
+    # bad
+Feb 27 13:24 GAM_random_effect_regamH1b1.pdf
+    # bad
+Feb 27 15:37 GAM_random_effect_regamH1b3c2.pdf
+    # bad
+
+### J models have continuous time random effects
+### J4 models have sz by year random effects
+
+### 2026.03.10  - no evidence that using a second RE component to capture 1-5 year variability works
+###             - seems like ft1.regamJ4o is the way to go for now

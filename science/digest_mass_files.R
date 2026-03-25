@@ -44,13 +44,11 @@ m.years <- as.integer(format(m.time2,"%Y"))
 m.doy   <- as.integer(strftime(m.time2, format = "%j"))
 m.date  <- m.years + (m.doy-0.5)/(unlist(lapply(m.years,days_in_year))) 
 
-xx   <- (m.doy-0.5)/(unlist(lapply(m.years,days_in_year)))
-
-
 i0 <- which(r1[,1]==ireg & m1[,1]==imask) 
 pcht <- paste(st1,"Region",ireg,"mask",imask )
 plot(as.POSIXct(m.time2), m.sst[i0,], pch=46, main=pcht)
 plot(as.POSIXct(m.time2), m.sst[i0,], ty='l', main=pcht)
 
-m.sst <- list(sst=m.sst, mld=m.mld, time=m.time, years=m.years, date=m.date)
+m.sst <- list(sst=m.sst, mld=m.mld, time=m.date, years=m.years, date=m.time2, doy=m.doy)
+
 save(file=st.out, m.sst)    
