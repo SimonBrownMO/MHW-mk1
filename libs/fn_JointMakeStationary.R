@@ -401,7 +401,7 @@ fn_diag_pre_proc <- function(savefile=NULL, width=10, height=7, DOPAUSE=FALSE){
 
 
 ##############################################################################
-fn_diag_qgam <- function(fit.qgam, savefile=NULL, width=10, height=7, DOPAUSE=FALSE, member=0){
+fn_diag_qgam_twostep <- function(fit.qgam, savefile=NULL, width=10, height=7, DOPAUSE=FALSE, member=0){
 
     if(is.null(savefile)) x11() else pdf(file=savefile, width=width, height=height)
 
@@ -419,44 +419,54 @@ fn_diag_qgam <- function(fit.qgam, savefile=NULL, width=10, height=7, DOPAUSE=FA
     par(mar=c(5.1, 4.1, 4.1, 2.1))
     par(mgp=c(3,1,0))
 
-    years     <- trunc(data01$time)
-      plot(data01$doy, data01$sdoy,  pch=46, main='Check iob and doy scaling')
+    iob   <- which(data01$isobs==1)
+    years <- trunc(data01$time)
+
+    ### general data sanity checks
+      plot(data01$doy[-iob], data01$sdoy[-iob], pch=20, cex=.3, main='Check iob and doy scaling')
+    points(data01$doy[iob],  data01$sdoy[iob],  pch=20, cex=.3, col=2)
     grid()
     if(DOPAUSE) readline("Continue?")
 
-      plot(data01$time, data01$x, pch=46, main='Obs and CPM data check wrt time')
+      plot(data01$time[-iob], data01$x[-iob], pch=20, cex=.3, main='Obs and CPM data check wrt time')
+    points(data01$time[iob],  data01$x[iob],  pch=20, cex=.3, col=2)
     grid()
     if(DOPAUSE) readline("Continue?")
 
-      plot(data01$doy, data01$x, pch=46, main='Obs and CPM data check wrt doy')
+      plot(data01$doy[-iob], data01$x[-iob], pch=20, cex=.3, main='Obs and CPM data check wrt doy')
+    points(data01$doy[iob],  data01$x[iob],  pch=20, cex=.3, col=2)
     grid()
     if(DOPAUSE) readline("Continue?")
 
-      plot(data01$sdoy, data01$x, pch=46, main='Obs and CPM data check wrt SCALED doy')
-    grid()
-    if(DOPAUSE) readline("Continue?")
-
-    ### quantiles
-      plot(data01$stime,       data01$x, type='n', main='Obs and CPM 90th quantile wrt SCALED time')
-    points(data01$stime,       data01$x,      pch=46)
-    points(data01$stime, q.doy.time[ip90, ], pch=46, col=3)
-    grid()
-    if(DOPAUSE) readline("Continue?")
-
-      plot(data01$sdoy,       data01$x, type='n', main='Obs and CPM 90th quantile wrt SCALED DOY')
-    points(data01$sdoy,         data01$x,    pch=46)
-    points(data01$sdoy, q.doy.time[ip90, ], pch=46, col=3)
+      plot(data01$sdoy[-iob], data01$x[-iob], pch=20, cex=.3, main='Obs and CPM data check wrt SCALED doy')
+    points(data01$sdoy[iob],  data01$x[iob],  pch=20, cex=.3, col=2)
     grid()
     if(DOPAUSE) readline("Continue?")
 
 
-    iy1.o <- which(years==min(years)+1)
-    iy2.o <- which(years==max(years)-1)
+    ### qgam quantiles sanity checks
+      plot(data01$stime,      data01$residStep1, type='n', main='Obs and CPM 90th quantile wrt SCALED time')
+    points(data01$stime[iob], data01$residStep1[iob], pch=20, cex=.3)
+     lines(data01$stime[iob], q.doy.time[ip90,][iob], lwd=2, col=3)
+    points(data01$stime[-iob], data01$residStep1[-iob], pch=20, cex=.3, col=2)
+     lines(data01$stime[-iob], q.doy.time[ip90,][-iob], lwd=2, col=4)
+    grid()
+    if(DOPAUSE) readline("Continue?")
 
+      plot(data01$sdoy,  data01$residStep1, type='n', main='Obs and CPM 90th quantile wrt SCALED DOY')
+    points(data01$sdoy[ iob],  data01$residStep1[ iob], pch=20, cex=.3)
+    points(data01$sdoy[ iob],  q.doy.time[ip90,][ iob], pch=20, cex=.3, col=3)
+    points(data01$sdoy[-iob],  data01$residStep1[-iob], pch=20, cex=.3, col=2)
+    points(data01$sdoy[-iob],  q.doy.time[ip90,][-iob], pch=20, cex=.3, col=4)
+    grid()
+    if(DOPAUSE) readline("Continue?")
 
     # just obs annual signal
-      plot(data01$sdoy,       data01$x, type='n', main='Obs 90 & 50 th quantile wrt scaled DOY')
-    points(data01$sdoy,                data01$x                       , pch=46,cex=.3)
+    iy1.o <- which(years==min(years[iob])+1 & data01$isobs==1 )
+    iy2.o <- which(years==max(years[iob])-1 & data01$isobs==1 )
+
+      plot(data01$sdoy, data01$residStep1, type='n', main='Obs 90 & 50 th quantile wrt scaled DOY +max/min obs years')
+    points(data01$sdoy, data01$residStep1,                       pch=46,cex=.3)
      lines(data01$sdoy[iy1.o[-1]],    q.doy.time[ip90,][iy1.o[-1]], lty=1, col=2, lwd=2)
      lines(data01$sdoy[iy2.o[-1]],    q.doy.time[ip90,][iy2.o[-1]], lty=2, col=2, lwd=3)
      lines(data01$sdoy[iy1.o[-1]],    q.doy.time[ip50,][iy1.o[-1]], lty=1, col=4, lwd=2)
@@ -466,28 +476,27 @@ fn_diag_qgam <- function(fit.qgam, savefile=NULL, width=10, height=7, DOPAUSE=FA
 
    
     # start end
-      plot(data01$sdoy,       data01$x, type='n', main='Obs and CPM 90th quantile wrt SCALED DOY')
-     lines(data01$sdoy[iy1.o[-1]],    q.doy.time[ip90,][iy1.o[-1]], pch=46, col=3)
-    points(data01$sdoy[iy2.o],                  data01$x[iy2.o],     pch=1,  cex=.6)
-     lines(data01$sdoy[iy2.o[-1]],    q.doy.time[ip90,][iy2.o[-1]], pch=46, col=3)
+      plot(data01$sdoy, data01$residStep1, type='n', main='Obs 90 & 50 th quantile wrt scaled DOY +max/min obs years')
+    points(data01$sdoy[iy1.o],                  data01$residStep1[iy1.o],     pch=1,  cex=.6)
+    points(data01$sdoy[iy2.o],                  data01$residStep1[iy2.o],     pch=1,  cex=.6, col=2)
+     lines(data01$sdoy[iy1.o[-1]],    q.doy.time[ip90,][iy1.o[-1]], col=3)
+     lines(data01$sdoy[iy2.o[-1]],    q.doy.time[ip90,][iy2.o[-1]], col=4)
     grid()
     legend('topleft',c('Obs','Obs 90%ile start/end'),col=c(1,3),pch=c(3,NA),lty=c(NA,1),bty='n')
 
     # all quantiles
     k0 <- seq(1,length(ptiles),by=4) # seq(2,98,by=4)
-    par(mfcol=c(2,2))
+    par(mfcol=c(2,1))
     par(mar=c(3,3,2,1))
     par(mgp=c(2,1,0))
 
-    plot(data01$sdoy,       data01$x, type='n', main='Obs start all %iles wrt DOY')
+    plot(data01$sdoy,       data01$residStep1, type='n', main='Obs start all %iles wrt DOY')
     for(k in k0) lines(data01$sdoy[iy1.o[-1]],    q.doy.time[k, ][iy1.o[-1]])
     grid()
 
-    plot(data01$sdoy,       data01$x, type='n', main='Obs end all %iles wrt DOY')
+    plot(data01$sdoy,       data01$residStep1, type='n', main='Obs end all %iles wrt DOY')
     for(k in k0) lines(data01$sdoy[iy2.o[-1]],    q.doy.time[k, ][iy2.o[-1]])
     grid()
-
-
 
     if(!is.null(savefile)) dev.off()
 
@@ -495,7 +504,7 @@ fn_diag_qgam <- function(fit.qgam, savefile=NULL, width=10, height=7, DOPAUSE=FA
 
 
 ##############################################################################
-fn_diag_evgam <- function(savefile=NULL, st.msgpd=NULL, width=10, height=7, DOPAUSE=FALSE){
+fn_diag_evgam_twostep <- function(savefile=NULL, st.msgpd=NULL, width=10, height=7, DOPAUSE=FALSE){
 
     if(!file.exists(st.msgpd)) {
         # cat("fn_apply_MSgpd: ERROR",cr,"Must path to MSgpd file",cr)
@@ -510,18 +519,19 @@ fn_diag_evgam <- function(savefile=NULL, st.msgpd=NULL, width=10, height=7, DOPA
 
     # smooths
     par(oma=c(0,0,1,0))
-    plot(chosen.MSgpd)
+    plot(fit.MSgpd)
     mtext(chosen.MSgpd.name,outer=T,at=c(0.01),adj=0,col=1,line=-0.3) # left justified
     if(DOPAUSE) readline("Continue?")
 
     # print out model summary ?onto plot
-    s1 <- capture.output(summary(chosen.MSgpd))
+    up.1()
+    s1 <- capture.output(summary(fit.MSgpd))
     plot(0:1,0:1,ty='n',main=paste('Summary stats for EV GAM',chosen.MSgpd.name),xlab=NA, ylab=NA, yaxt='n', xaxt='n')
     x1 <- 0.1
     y1 <- 1
     for(i in seq_along(s1)) {
-        text(x1,y1,s1[i],adj=0,cex=0.5)
-        y1 <- y1 - 1/length(s1)
+        text(x1,y1,s1[i],adj=0,cex=0.8)
+        y1 <- y1 - 0.8*(1/length(s1))
     }
     if(DOPAUSE) readline("Continue?")
 
@@ -531,7 +541,7 @@ fn_diag_evgam <- function(savefile=NULL, st.msgpd=NULL, width=10, height=7, DOPA
 
 
 ##############################################################################
-fn_diag_q2p <- function(savefile=NULL, width=10, height=7, DOPAUSE=FALSE){
+fn_diag_q2p_twostep <- function(savefile=NULL, width=10, height=7, DOPAUSE=FALSE){
 
     if(is.null(savefile)) x11() else pdf(file=savefile, width=width, height=height)
 
@@ -647,7 +657,7 @@ fn_diag_q2p <- function(savefile=NULL, width=10, height=7, DOPAUSE=FALSE){
 }
 
 ##############################################################################
-fn_diag_general <- function(savefile=NULL, width=10, height=7, dodoy=200, DOPAUSE=FALSE){
+fn_diag_general_twostep <- function(savefile=NULL, width=10, height=7, dodoy=200, DOPAUSE=FALSE){
 
     if(is.null(savefile)) x11() else pdf(file=savefile, width=width, height=height)
 
@@ -660,38 +670,49 @@ fn_diag_general <- function(savefile=NULL, width=10, height=7, dodoy=200, DOPAUS
     # plot(test01$time, qlaplace(test01$u), pch=20, cex=.3, main="Test u obs doy=200")
     # grid()
 
+    ### step1
+        if(exists("ft1A.gam") ) plot_gam1(ft1A.gam,  stpdf=NULL)
+        if(exists("ft1B.gam") ) plot_gam2(ft1B.gam,  stpdf=NULL)
+        if(exists("ft1AB.gam")) plot_gam1(ft1AB.gam, stpdf=NULL)
+
     # qgam
     q50s      <- qdo(fit.qgam, 0.5,  predict, newdata=test01)
     q90s      <- qdo(fit.qgam, 0.9,  predict, newdata=test01)
-    q99s      <- qdo(fit.qgam, 0.99,  predict, newdata=test01)
-      plot(data01$gmst, data01$x, pch=46, main="qgam evgam")
+    q99s      <- qdo(fit.qgam, 0.99, predict, newdata=test01)
+      plot(data01$gmst, data01$residStep1, pch=46, main="qgam evgam")
     lines(test01$gmst, q50s, lwd=2, col=2)
     lines(test01$gmst, q90s, lwd=2, col=3)
     lines(test01$gmst, q99s, lwd=2, col=4)
+
     # evgam
-    gpd01par <- predict(chosen.MSgpd, newdata=test01, type="response")
+    gpd01par <- predict(fit.MSgpd, newdata=test01, type="response")
     evth     <- qdo(fit.qgam, ms.thgpd.u,  predict, newdata=test01)
     ev99     <- evth + (gpd01par$scale/ gpd01par$shape)* ( ( (1 - 0.99)/(1 - ms.thgpd.u) )^(-gpd01par$shape) -1 )
     lines(test01$gmst, ev99, lwd=2, lty=2, col=1)
+
     # add winter
     i1w    <- which(data01$isobs==1 & data01$doy==20)
     test01 <- data01[i1w,]
     q50w      <- qdo(fit.qgam, 0.5,  predict, newdata=test01)
     q90w      <- qdo(fit.qgam, 0.9,  predict, newdata=test01)
-    q99w      <- qdo(fit.qgam, 0.99,  predict, newdata=test01)
-    lines(test01$gmst, q50w, lwd=2, col=2)
-    lines(test01$gmst, q90w, lwd=2, col=3)
-    lines(test01$gmst, q99w, lwd=2, col=4)
-    gpd01par <- predict(chosen.MSgpd, newdata=test01, type="response")
+    q99w      <- qdo(fit.qgam, 0.99, predict, newdata=test01)
+    lines(test01$gmst, q50w, lwd=2, col=2, lty=2)
+    lines(test01$gmst, q90w, lwd=2, col=3, lty=2)
+    lines(test01$gmst, q99w, lwd=2, col=4, lty=2)
+    gpd01par <- predict(fit.MSgpd, newdata=test01, type="response")
     evth     <- qdo(fit.qgam, ms.thgpd.u,  predict, newdata=test01)
     ev99     <- evth + (gpd01par$scale/ gpd01par$shape)* ( ( (1 - 0.99)/(1 - ms.thgpd.u) )^(-gpd01par$shape) -1 )
     lines(test01$gmst, ev99, lwd=2, lty=2, col=1)
 
     # q2p
-    test01 <- data01[i1s,]
-    test01$x <- q90s[1]
-    p17uqgam <- fn_apply_q2p(test01, qgam.q2p.fn[i1s], st.q2p=NULL, SANITY=FALSE)
+    p17uqgam <- fn_apply_q2p(q90s, qgam.q2p.fn[i1s], st.q2p=NULL, SANITY=FALSE)
     plot(test01$gmst, p17uqgam, ty='l', pch=20, cex=.3, main="q2p sanity check q90s[1]",ylim=c(0,1))
+    p17uqgam <- fn_apply_q2p(q90w, qgam.q2p.fn[i1s], st.q2p=NULL, SANITY=FALSE)
+    grid()
+
+    # q2p
+    plot(test01$gmst, fn_apply_q2p(q90s, qgam.q2p.fn[i1s]), ty='l', pch=20, cex=.3, main="q2p sanity check q90s",ylim=c(0,1))
+    lines(test01$gmst, fn_apply_q2p(q90w, qgam.q2p.fn[i1w]), lty=3, lwd=4, col=2)
     grid()
 
     # p2q
@@ -699,7 +720,7 @@ fn_diag_general <- function(savefile=NULL, width=10, height=7, dodoy=200, DOPAUS
     l.vars <- as.list(temp_env)
     test01 <- data01[i1s,]
     for(i in seq_along(i1s)) test01$o[i] <- l.vars$qgam.p2q.fn[[i1s[i]]](0.9)
-    plot(test01$gmst, test01$o, ty='l', pch=20, cex=.3, main="p2q sanity check q90s[1]")
+    plot(test01$gmst, test01$o, ty='p', pch=20, cex=.3, main="p2q sanity check q90s[1]")
     grid()
 
     p0 <- c(0.001*1:9,0.01*1:99,1-0.001*9:1)
@@ -739,7 +760,7 @@ fn_diag_general <- function(savefile=NULL, width=10, height=7, dodoy=200, DOPAUS
     # evgam
     i1s    <- which(data01$isobs==1 & data01$doy==dodoy)
     test01 <- data01[i1s,]
-    gpd01par <- predict(chosen.MSgpd, newdata=test01, type="response")
+    gpd01par <- predict(fit.MSgpd, newdata=test01, type="response")
     evth     <- qdo(fit.qgam, ms.thgpd.u,  predict, newdata=test01)
     ev99     <- evth + (gpd01par$scale/ gpd01par$shape)* ( ( (1 - 0.99) /(1 - ms.thgpd.u) )^(-gpd01par$shape) -1 )
     ev999    <- evth + (gpd01par$scale/ gpd01par$shape)* ( ( (1 - 0.999)/(1 - ms.thgpd.u) )^(-gpd01par$shape) -1 )

@@ -5,14 +5,14 @@
 ###################################################################
 
 ###################################################################
-plot_regam <- function(ft1,stpdf=NULL) {
+plot_gam1 <- function(ft1,stpdf=NULL) {
   
   if(!is.null(stpdf)) pdf(file=stpdf, width=12, height=9)
 
   plot(ft1, pages=1, shade=TRUE)
   
   q1       <- predict(ft1) 
-  iy2001   <- which(data01$year==2001 & data01$isobs==1)
+  iy2001   <- which(trunc(data01$time)==2001 & data01$isobs==1)
   i0x      <- which.max(q1[ iy2001] )
   i0n      <- which.min(q1[ iy2001] )
   doyn     <- data01$doy[ iy2001][i0n]
@@ -30,7 +30,7 @@ plot_regam <- function(ft1,stpdf=NULL) {
   q1.2003  <- predict(ft1, newdata=nd) 
   
   up.1()
-  plot(data01$x, pch=20, cex=.3, main=paste("NWS ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
+  plot(ft1$y, pch=20, cex=.3, main=paste("x ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
   lines(q1,   col=2, lwd=2)
   lines(q1.n, col=4, lwd=2)
   lines(q1.x, col=3, lwd=2)
@@ -39,13 +39,13 @@ plot_regam <- function(ft1,stpdf=NULL) {
   im <- which(data01$doy==doyn)
   lines(im, q1.2003[im], col=6, lwd=2)
   legend("topleft", legend=c("OBS/GCM","median(year,doy)", "Winter min", "Winter min @2003 IAV", "Summer max", "Summer max @2003 IAV"), 
-                          col=c(1,2,4,6,3,6), lwd=c(NA,2,2,2,2,2), pch=c(20,NA,NA,NA,NA,NA), bty="n", cex=1.2)
+                          col=c(1,2,4,6,3,6), lwd=c(NA,2,2,2,2,2), pch=c(20,NA,NA,NA,NA,NA), bty="n", cex=1)
   grid()
   if(is.null(stpdf)) readline("continue?")
   
   up.1()
   ix <- 16000:18000-185
-  plot(data01$x[ix], pch=20, cex=.3, main=paste("NWS ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
+  plot(ft1$y[ix], pch=20, cex=.3, main=paste("x ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
   lines(q1[ix],   col=2, lwd=2)
   lines(q1.n[ix], col=4, lwd=2)
   lines(q1.x[ix], col=3, lwd=2)
@@ -54,16 +54,67 @@ plot_regam <- function(ft1,stpdf=NULL) {
   iz <- which(data01$doy[ix]==doyn)
   lines(iz, q1.2003[ix][iz], col=6, lwd=2); points(iz, q1.2003[ix][iz], col=6, pch=20, cex=2.0)
   legend("topleft", legend=c("OBS/GCM","median(year,doy)", "Winter min", "Winter min @2003 IAV", "Summer max", "Summer max @2003 IAV"), 
-                          col=c(1,2,4,6,3,6), lwd=c(NA,2,2,2,2,2), pch=c(20,NA,NA,20,NA,20), bty="n", cex=1.2)
+                          col=c(1,2,4,6,3,6), lwd=c(NA,2,2,2,2,2), pch=c(20,NA,NA,20,NA,20), bty="n", cex=1)
   grid()
   if(is.null(stpdf)) readline("continue?")
   
   # residuals
   up.1()
-  plot(data01$x-q1, pch=20, cex=.3, main=paste("Residuals"), cex.main=0.9, xlab="index", ylab="Temperature (C)")
+  plot(ft1$y-q1, pch=20, cex=.3, main=paste("Residuals"), cex.main=0.9, xlab="index", ylab="Temperature (C)")
   grid()
   if(!is.null(stpdf)) dev.off()
 } 
+
+### legacy
+plot_regam <- plot_gam1
+
+
+plot_gam2  <- function(ft1,stpdf=NULL) {
+  
+  if(!is.null(stpdf)) pdf(file=stpdf, width=12, height=9)
+
+  plot(ft1, pages=1, shade=TRUE)
+  
+  q1       <- predict(ft1) 
+  iy2001   <- which(trunc(data01$time)==2001 & data01$isobs==1)
+  i0x      <- which.max(q1[ iy2001] )
+  i0n      <- which.min(q1[ iy2001] )
+  doyn     <- data01$doy[ iy2001][i0n]
+  sdoyn    <- data01$sdoy[iy2001][i0n]
+  doyx     <- data01$doy[ iy2001][i0x]
+  sdoyx    <- data01$sdoy[iy2001][i0x]
+  nd       <- data01
+  nd$sdoy  <- sdoyn
+  q1.n     <- predict(ft1,  newdata=nd )
+  nd$sdoy  <- sdoyx
+  q1.x     <- predict(ft1,  newdata=nd )
+  # remove interannual variability
+  nd       <- data01
+  nd$fYear <- "2003"
+  q1.2003  <- predict(ft1, newdata=nd) 
+  
+  up.1()
+  plot(ft1$y, pch=20, cex=.3, main=paste("x ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
+  lines(q1,   col=2, lwd=2)
+  legend("topleft", legend=c("OBS/GCM","prediction"), col=c(1,2), lwd=c(NA,2), pch=c(20,NA), bty="n", cex=1)
+  grid()
+  if(is.null(stpdf)) readline("continue?")
+  
+  up.1()
+  ix <- 16000:18000-185
+  plot(ft1$y[ix], pch=20, cex=.3, main=paste("x ~ ",ft1$formula[3]), cex.main=0.9, xlab="index", ylab="Temperature")
+  lines(q1[ix],   col=2, lwd=2)
+  legend("topleft", legend=c("OBS/GCM","prediction"), col=c(1,2), lwd=c(NA,2), pch=c(20,NA), bty="n", cex=1)
+  grid()
+  if(is.null(stpdf)) readline("continue?")
+  
+  # residuals
+  up.1()
+  plot(ft1$y-q1, pch=20, cex=.3, main=paste("Residuals"), cex.main=0.9, xlab="index", ylab="Temperature (C)")
+  grid()
+  if(!is.null(stpdf)) dev.off()
+} 
+
 
 ###################################################################
 plot_regam_RE <- function(ft1, do.select=NULL, stpdf=NULL, idx=1:4, do.years=1980:2025) {

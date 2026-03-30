@@ -1,5 +1,7 @@
 # source("doMakeStationary_season.R")
 
+RETIRED 2026.03.26 superceeded by RE-gam and multi-step approach
+
 sysdate   <- Sys.time()
 cat("###############################################################################",cr)
 stsysdate <- print(sysdate)
