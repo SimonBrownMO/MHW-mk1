@@ -1,0 +1,14 @@
+2026.04.02
+
+explore_InitEventFit.R
+    fit.init.IDT
+    fit.init.IDT <- gam(init ~ ftype + s(sdoy,bs=form.doy,k=ievent.k$doy,by=ftype) +s(cc,bs='ts',k=ievent.k$cc), data=evinit.j, family="binomial")
+
+explore_InitValue.R
+    SBD.GB seems the way to go
+
+explore_TermFit.R
+    # pragmatic general approach would be TICD for day-1 and TICDA for day-N, but check smooths are not screwy
+
+explore_HT.R
+    # have not explored this

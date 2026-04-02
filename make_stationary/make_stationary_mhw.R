@@ -85,7 +85,7 @@ source(paste(st.pwd,"/setup_MakeStationary.R",sep=''))
     # o.time           <- c(o.t2)
     # o.time.std       <- (o.time - o.time.std.param$mean)/(o.time.std.param$max - o.time.std.param$min)
 
-    data01.o <- data.frame(time=o.time, x=c(l.mhw[[do.region]]), gmst=gmst.o$global.temp, sdoy=o.info$sdoy, doy=o.info$doy, isobs=1)
+    data01.o <- data.frame(time=o.info$years+o.info$sdoy, x=c(l.mhw[[do.region]]), gmst=gmst.o$global.temp, sdoy=o.info$sdoy, doy=o.info$doy, isobs=1)
 
     ### diagnostic checks for pre-proc data
     # if(DODIAGPRE) {
@@ -119,11 +119,11 @@ source(paste(st.pwd,"/setup_MakeStationary.R",sep=''))
     # read model GMST
     load(st_mod_gmst, verb=TRUE)  # cpm_gmst$m001$gmst
 
-    m.sdoy <- m.sst$doy / max(m.sst$doy) # can do this as model has no leap year
+    m.sdoy <- m.sst$doy / (max(m.sst$doy) +1)  # can do this as model has no leap year # +1 so last day of year sdoy<1) 
     # CPM data only goes to 2080-11-30 12:00:00 so need to crop m.sst to match
     i1       <- which(m.sst$date         %in% cpm_gmst$m001$time) 
     i2       <- which(cpm_gmst$m001$time %in% m.sst$date[i1])
-    data01.m <- data.frame(time=m.sst$time[i1], x=m.sst$sst[iregion,i1], gmst=cpm_gmst$m001$gmst[i2], sdoy=m.sdoy[i1], doy=m.sst$doy[i1] )
+    data01.m <- data.frame(time=m.sst$time[i1]+m.sdoy[i1], x=m.sst$sst[iregion,i1], gmst=cpm_gmst$m001$gmst[i2], sdoy=m.sdoy[i1], doy=m.sst$doy[i1] )
     data01.m <- data.table(data01.m)
     data01.m[,isobs := 0]
   ### end CPM data

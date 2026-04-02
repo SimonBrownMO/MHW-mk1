@@ -2,7 +2,7 @@
 
 list2env(HDconfig$initI , envir = .GlobalEnv)
 
-load(st_events, verb=TRUE)
+# load(st_events, verb=TRUE)
 # > str1(events)
 # List of 4
 #  $ obs    :List of 13

@@ -1,0 +1,287 @@
+ostia_cdr_nrt_regions_IValueTh0.9.stats
+
+###################
+[1] "S0.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.48       0.07  -21.98   <2e-16
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.07       0.05   -1.52   0.0646
+
+** Smooth terms **
+###################
+
+
+
+###################
+[1] "SB.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.52        0.1  -14.67   <2e-16
+classmod        0.06        0.1    0.55    0.291
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.07       0.05   -1.47   0.0703
+
+** Smooth terms **
+###################
+
+
+
+###################
+[1] "SB.GB"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.59       0.13  -12.14   <2e-16
+classmod        0.15       0.15    1.02    0.155
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.01       0.09   -0.06    0.477
+classmod       -0.09       0.10   -0.85    0.198
+
+** Smooth terms **
+###################
+
+
+
+###################
+[1] "SBD.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.46       0.11  -13.68   <2e-16
+classmod        0.02       0.10    0.23    0.408
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.15       0.05   -2.99  0.00139
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 1.98      8   8.11   0.0139
+s(sdoy):classmod 2.96      8  24.21  6.2e-05
+###################
+
+
+
+###################
+[1] "SBDT.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.46       0.11  -13.68   <2e-16
+classmod        0.02       0.10    0.23    0.408
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.15       0.05   -2.99  0.00139
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 1.98      8   8.21   0.0136
+s(sdoy):classmod 2.96      8  24.24  6.3e-05
+s(gmst)          0.01      9   0.00    0.984
+###################
+
+
+
+###################
+[1] "SBDTi.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.46       0.11  -13.67   <2e-16
+classmod        0.02       0.10    0.23    0.408
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.15       0.05   -2.99   0.0014
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 2.00      8   8.75   0.0125
+s(sdoy):classmod 2.96      8  24.20 6.24e-05
+s(gmst)          0.01      9   0.00    0.981
+ti(sdoy,gmst)    0.01     12   0.00    0.994
+###################
+
+
+
+###################
+[1] "SBDTi.GB"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.59       0.13  -12.39   <2e-16
+classmod        0.24       0.15    1.54   0.0613
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.05       0.09   -0.52      0.3
+classmod       -0.18       0.11   -1.72   0.0426
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 1.91      8   6.62   0.0271
+s(sdoy):classmod 3.35      8  31.31 1.73e-06
+s(gmst)          0.01      9   0.00    0.981
+ti(sdoy,gmst)    0.00     12   0.00    0.996
+###################
+
+
+
+###################
+[1] "Si.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.46       0.07  -21.57   <2e-16
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)     -0.1       0.05    -2.1    0.018
+
+** Smooth terms **
+
+logscale
+               edf max.df Chi.sq Pr(>|t|)
+ti(sdoy,gmst) 3.43     12   4.76    0.247
+###################
+
+
+
+###################
+[1] "SBi.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.51        0.1  -14.75   <2e-16
+classmod        0.06        0.1    0.62    0.267
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)     -0.1       0.05   -2.06   0.0197
+
+** Smooth terms **
+
+logscale
+               edf max.df Chi.sq Pr(>|t|)
+ti(sdoy,gmst) 3.44     12   4.89    0.235
+###################
+
+
+
+###################
+[1] "SDTi.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.44       0.07  -20.99   <2e-16
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.15       0.05   -3.13 0.000887
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 1.99      8   8.20   0.0143
+s(sdoy):classmod 3.00      8  23.99 3.41e-05
+s(gmst)          0.01      9   0.00    0.975
+ti(sdoy,gmst)    0.01     12   0.00    0.994
+###################
+
+
+
+###################
+[1] "ST.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.48       0.07  -21.99   <2e-16
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.07       0.05   -1.51   0.0649
+
+** Smooth terms **
+
+logscale
+         edf max.df Chi.sq Pr(>|t|)
+s(gmst) 0.02      9   0.01    0.914
+###################
+
+
+
+###################
+[1] "SD.G0"
+summary(fit.IVgpd)
+
+** Parametric terms **
+
+logscale
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -1.44       0.07     -21   <2e-16
+
+shape
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)    -0.15       0.05   -3.13 0.000878
+
+** Smooth terms **
+
+logscale
+                  edf max.df Chi.sq Pr(>|t|)
+s(sdoy):classobs 1.97      8   7.74   0.0161
+s(sdoy):classmod 3.00      8  23.94 3.35e-05
+###################
+
+

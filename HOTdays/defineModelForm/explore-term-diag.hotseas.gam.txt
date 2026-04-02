@@ -1,0 +1,611 @@
+explore-term-diag.hotseas.gam.txt
+
+###################################
+### Day 1 Termination GAM model ###
+[1] "T"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.4844     0.2524  -9.843   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+       edf Ref.df Chi.sq  p-value    
+s(tmp)   1      1  23.12 2.07e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.0878   Deviance explained = 12.6%
+UBRE = -0.30215  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 286.8165 294.8540
+##########
+
+[1] "TI"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0631     0.4045  -7.572 3.68e-14 ***
+classmod      0.7471     0.3818   1.957   0.0504 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+       edf Ref.df Chi.sq  p-value    
+s(tmp)   1      1  23.57 1.06e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.0909   Deviance explained = 13.9%
+UBRE = -0.3076  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 284.5766 296.6327
+##########
+
+[1] "TIC"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.9499     0.4133  -7.137 9.51e-13 ***
+classmod      0.5043     0.4058   1.243    0.214    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+        edf Ref.df Chi.sq  p-value    
+s(tmp)    1      1 24.564 1.37e-06 ***
+s(gmst)   1      1  4.128   0.0422 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.0967   Deviance explained = 15.2%
+UBRE = -0.31281  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 282.4362 298.5110
+##########
+
+[1] "TICD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.1572     0.4487  -7.037 1.96e-12 ***
+classmod      0.5802     0.4309   1.347    0.178    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df Chi.sq p-value    
+s(tmp)        1.000  1.000 27.201  <2e-16 ***
+s(gmst)       1.000  1.000  4.370  0.0366 *  
+s(D):classobs 1.000  1.000  1.021  0.3123    
+s(D):classmod 2.687  2.927  8.884  0.0247 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.127   Deviance explained = 18.9%
+UBRE = -0.32391  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 277.8741 308.7665
+##########
+
+[1] "TICDiCD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class) + ti(gmst, D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.2740     0.4632  -7.068 1.58e-12 ***
+classmod      0.6186     0.4442   1.393    0.164    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df Chi.sq p-value    
+s(tmp)        1.000  1.000 27.604  <2e-16 ***
+s(gmst)       1.000  1.000  3.718  0.0539 .  
+s(D):classobs 1.000  1.000  0.650  0.4201    
+s(D):classmod 2.449  2.779  6.786  0.0772 .  
+ti(gmst,D)    8.010 10.406 10.803  0.4740    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.158   Deviance explained = 23.4%
+UBRE = -0.32205  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 278.6376 340.7615
+##########
+
+[1] "TCDiCD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D) + ti(gmst, 
+    D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.7145     0.2806  -9.676   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+             edf Ref.df Chi.sq  p-value    
+s(tmp)     1.000   1.00 26.854 2.38e-07 ***
+s(gmst)    1.000   1.00  6.808  0.00907 ** 
+s(D)       1.000   1.00  2.602  0.10676    
+ti(gmst,D) 7.824  10.17 10.361  0.38805    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.144   Deviance explained = 20.7%
+UBRE = -0.31854  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 280.0781 327.5940
+##########
+
+[1] "TCD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.6196     0.2694  -9.724   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+        edf Ref.df Chi.sq  p-value    
+s(tmp)    1      1 25.898 4.76e-07 ***
+s(gmst)   1      1  7.533  0.00606 ** 
+s(D)      1      1  2.928  0.08706 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.107   Deviance explained = 15.6%
+UBRE = -0.31616  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 281.0575 297.1326
+##########
+
+[1] "TC"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.5714     0.2634  -9.764   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+        edf Ref.df Chi.sq  p-value    
+s(tmp)    1      1 24.558 1.42e-06 ***
+s(gmst)   1      1  6.894  0.00865 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.0977   Deviance explained = 14.7%
+UBRE = -0.31374  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 282.0547 294.1110
+##########
+
+[1] "TD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(D, k = tr.k$D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.5175     0.2561  -9.828   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+       edf Ref.df Chi.sq  p-value    
+s(tmp)   1      1 24.187 1.12e-06 ***
+s(D)     1      1  2.319    0.128    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.0936   Deviance explained = 13.3%
+UBRE = -0.30304  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 286.4515 298.5078
+##########
+
+
+###################################
+### Day N Termination GAM model ###
+[1] "T"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -2.9543     0.2431  -12.15   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+         edf Ref.df Chi.sq p-value    
+s(tmp) 3.171  3.945  325.3  <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.265   Deviance explained = 29.5%
+UBRE = -0.41654  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1445.242 1469.496
+##########
+
+[1] "TI"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.3234     0.2690 -12.356  < 2e-16 ***
+classmod      0.5298     0.1454   3.643 0.000269 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+         edf Ref.df Chi.sq p-value    
+s(tmp) 3.349  4.146  330.8  <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.268   Deviance explained = 30.2%
+UBRE = -0.42135  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1433.323 1464.424
+##########
+
+[1] "TIC"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.2720     0.2724  -12.01   <2e-16 ***
+classmod      0.4492     0.1565    2.87   0.0041 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+          edf Ref.df  Chi.sq p-value    
+s(tmp)  3.406  4.211 331.969  <2e-16 ***
+s(gmst) 1.000  1.000   2.072    0.15    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.269   Deviance explained = 30.4%
+UBRE = -0.4214  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1433.197 1470.446
+##########
+
+[1] "TICD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.2718     0.2750 -11.898  < 2e-16 ***
+classmod      0.4453     0.1568   2.839  0.00452 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df  Chi.sq p-value    
+s(tmp)        3.513  4.329 334.407  <2e-16 ***
+s(gmst)       1.001  1.001   1.941  0.1636    
+s(D):classobs 1.000  1.001   3.740  0.0532 .  
+s(D):classmod 1.000  1.000   0.443  0.5056    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.272   Deviance explained = 30.6%
+UBRE = -0.42151  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1432.925 1482.432
+##########
+
+[1] "TICDA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.3043     0.2826 -11.691   <2e-16 ***
+classmod      0.3788     0.1873   2.022   0.0432 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df  Chi.sq p-value    
+s(tmp)        3.394  4.195 341.625 < 2e-16 ***
+s(gmst)       4.838  4.986  20.670 0.00109 ** 
+s(D):classobs 1.000  1.000   4.380 0.03636 *  
+s(D):classmod 1.000  1.000   0.164 0.68606    
+s(A)          2.377  2.850  40.982 < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =    0.3   Deviance explained = 33.3%
+UBRE = -0.4393  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1388.854 1473.805
+##########
+
+[1] "TICDAiCD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class) + s(A, k = 5) + ti(gmst, D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.3103     0.2821 -11.735   <2e-16 ***
+classmod      0.3841     0.1877   2.047   0.0407 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df  Chi.sq  p-value    
+s(tmp)        3.351  4.145 341.359  < 2e-16 ***
+s(gmst)       4.849  4.988  20.967 0.000952 ***
+s(D):classobs 1.000  1.000   3.581 0.058455 .  
+s(D):classmod 1.000  1.000   0.236 0.627003    
+s(A)          2.387  2.860  41.180  < 2e-16 ***
+ti(gmst,D)    1.362  1.639   0.223 0.785746    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =    0.3   Deviance explained = 33.4%
+UBRE = -0.43859  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1390.622 1483.366
+##########
+
+[1] "TCDAiCD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D) + s(A, 
+    k = 5) + ti(gmst, D)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0514     0.2465  -12.38   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+             edf Ref.df  Chi.sq  p-value    
+s(tmp)     3.186  3.960 340.574  < 2e-16 ***
+s(gmst)    4.898  4.994  32.711 4.27e-06 ***
+s(D)       1.000  1.000   2.547    0.111    
+s(A)       2.398  2.868  41.538  < 2e-16 ***
+ti(gmst,D) 5.580  6.787   8.612    0.246    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.302   Deviance explained = 33.5%
+UBRE = -0.43828  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1391.377 1496.398
+##########
+
+[1] "TCDA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D) + s(A, 
+    k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0513     0.2484  -12.28   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+          edf Ref.df  Chi.sq  p-value    
+s(tmp)  3.260  4.043 337.345  < 2e-16 ***
+s(gmst) 4.885  4.993  32.715 5.36e-06 ***
+s(D)    1.000  1.000   2.022    0.155    
+s(A)    2.374  2.845  39.818  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.298   Deviance explained =   33%
+UBRE = -0.43816  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1391.686 1464.482
+##########
+
+[1] "TCA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(gmst, k = tr.k$gmst) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0445     0.2473  -12.31   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+          edf Ref.df Chi.sq  p-value    
+s(tmp)  3.234  4.015 336.43  < 2e-16 ***
+s(gmst) 4.887  4.993  33.90 3.48e-06 ***
+s(A)    2.345  2.814  39.75  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.296   Deviance explained = 32.9%
+UBRE = -0.43809  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1391.859 1458.534
+##########
+
+[1] "TDA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(D, k = tr.k$D) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   -3.013      0.244  -12.35   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+         edf Ref.df  Chi.sq p-value    
+s(tmp) 2.938  3.673 328.862  <2e-16 ***
+s(D)   1.001  1.001   3.244  0.0719 .  
+s(A)   2.338  2.807  30.342   3e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.285   Deviance explained = 31.2%
+UBRE = -0.42786  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1417.193 1459.503
+##########
+
+[1] "TA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0033     0.2435  -12.34   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+         edf Ref.df Chi.sq p-value    
+s(tmp) 2.919  3.652 327.76 < 2e-16 ***
+s(A)   2.301  2.768  29.91 3.6e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =   0.28   Deviance explained =   31%
+UBRE = -0.42727  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1418.654 1454.823
+##########
+
+###################################
+
+
+### BIC,AIC Day 1 Termination GAM model ###
+[1] "TC \t\t\t 294.1 282.1"
+[1] "T \t\t\t 294.9 286.8"
+[1] "TI \t\t\t 296.6 284.6"
+[1] "TCD \t\t\t 297.1 281.1"
+[1] "TD \t\t\t 298.5 286.5"
+[1] "TIC \t\t\t 298.5 282.4"
+[1] "TICD \t\t\t 308.8 277.9"
+[1] "TCDiCD \t\t\t 327.6 280.1"
+[1] "TICDiCD \t\t\t 340.8 278.6"
+
+
+### BIC,AIC Day N Termination GAM model ###
+[1] "TA \t\t\t 1454.8 1418.7"
+[1] "TCA \t\t\t 1458.5 1391.9"
+[1] "TDA \t\t\t 1459.5 1417.2"
+[1] "TI \t\t\t 1464.4 1433.3"
+[1] "TCDA \t\t\t 1464.5 1391.7"
+[1] "T \t\t\t 1469.5 1445.2"
+[1] "TIC \t\t\t 1470.4 1433.2"
+[1] "TICDA \t\t\t 1473.8 1388.9"
+[1] "TICD \t\t\t 1482.4 1432.9"
+[1] "TICDAiCD \t\t\t 1483.4 1390.6"
+[1] "TCDAiCD \t\t\t 1496.4 1391.4"

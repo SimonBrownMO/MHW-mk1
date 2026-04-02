@@ -2,9 +2,9 @@
 
 st.pwd    <- system("pwd", intern=TRUE)
 
-ensure you do not want to run main_ExtractEvents_Hobday.R with
-    doExtractEvents_Hobday.R
-    doExtractEvents_Hobday_wtime.R
+# ensure you do not want to run main_ExtractEvents_Hobday.R with
+#     doExtractEvents_Hobday.R
+#     doExtractEvents_Hobday_wtime.R
 
 ### setup variables #####################################
 source(paste(st.pwd,"/../setup_all.R",sep=''))
@@ -12,9 +12,9 @@ event.th.u    <- 0.90    # definition of when a heatwave event begins/ends
 event.length  <- 180      # maximum allowed length of heatwave.  For wrt-peak this is fwd and bwd so events can be up to 2x longer than this (days)
 USEHOTSEASON  <- TRUE
 FINDHOTSEASON <- TRUE    # TRUE== determine hot season based on annual cycle greater than thHotSeason
-thHotSeason   <- 5.0     # annual range degC must exceed this if a hot season is to be defined
+thHotSeason   <- 2.0     # annual range degC must exceed this if a hot season is to be defined
                         # for regions with a strong annual cycle it is a good idea to exclude weather types that are not associated with hot days in an absolute sense
-facHotSeas    <- 0.25   # fraction of the year that defines the hot season. 
+fracHotSeas   <- 0.5   # fraction of the year that defines the hot season. 
                         # E.g. 0.5 = half the year, 0.25 = quarter of the year eg ~JJA
 eventsDOY     <- NULL   # Specify here desired DOY for events to be extracted if find FINDHOTSEASON is FALSE
 DOEVENTSPLOT  <- TRUE
@@ -27,21 +27,17 @@ events$USEHOTSEASON   <- USEHOTSEASON
 events$FINDHOTSEASON  <- FINDHOTSEASON
 events$thHotSeason    <- thHotSeason
 
-### currently missing from MSconfig
-do.region <- "NWS"  
-
 ### v_Hobday
 # MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v_Hobday/MSref/ostia_cdr_nrt_regions.MSref.2025-11-07.RData"
-
 ### v1
-MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-26.RData"
-
+# MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v1/MSref/ostia_cdr_nrt_regions.MSref.2025-11-26.RData"
 ### v2
 # MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v2/MSref/ostia_cdr_nrt_regions.MSref.2025-10-29.RData"
-
 ### v3
 # MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/NWS/v3/MSref/ostia_cdr_nrt_regions.MSref.2025-11-04.RData"
 
+# v5
+MSref.file <- "/home/users/simon.brown/extremes/heatwaves/mhw/DATA/UKV/v5/MSref/ostia_cdr_nrt_regions.MSref.2026-03-26.RData"
 
 cat(cr,"MSref.file",cr)
 cat(MSref.file,cr,cr)

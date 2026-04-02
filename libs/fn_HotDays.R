@@ -431,6 +431,37 @@ ChainsFromGeneric <- function(x1,  th.x1, chain.length=chain.length, DOPLOT=FALS
 ##############################################################################################
 
 ##############################################################################
+fn_findHotSeasonSimple <- function(x1y, thHotSeason, fracHotSeas=0.5, DOPLOT=TRUE, st.pdf=NULL){
+
+    # fracHotSeas is the fraction of the year that has to be in the hot season. 
+    # E.g. 0.5 = half the year, 0.25 = quarter of the year eg ~JJA
+
+    annCyc     <- abs(diff(range(x1y)))
+    
+    if( annCyc > thHotSeason) { # there is a hot season
+        IsHotSeason <- TRUE
+        ix1y        <- which.max(x1y)
+        th1         <- x1y[ix1y]
+        while(length(which(x1y>th1)) < ceiling(length(x1y)*fracHotSeas)) th1 <- th1 -0.1
+        ihseas      <- which(x1y>th1)
+        cat("Hot season found. Range:",annCyc, cr)
+    } else {
+        IsHotSeason <- FALSE
+        ihseas      <- seq_along(x1y)
+        cat("No hot season found. Range:",annCyc, cr)
+    }
+
+    if(DOPLOT) {
+        if(!is.null(st.pdf)) pdf(file=st.pdf, width=7, height=7) else x11()
+        up.1()
+        plot(  x1y,main='Annual cycle & hot season', ylim=range(x1y))
+        points(ihseas,x1y[ihseas],cex=.3,pch=3,col=2)
+        if(!is.null(st.pdf)) dev.off()
+    }
+    return(ihseas)
+}
+
+##############################################################################
 fn_findHotSeason <- function(data01, thHotSeason, st.qgam=NULL, st.pre=NULL, st.pdf=NULL, DOPLOT=TRUE){
 
     if (!exists("om_data")) {
@@ -452,10 +483,15 @@ fn_findHotSeason <- function(data01, thHotSeason, st.qgam=NULL, st.pre=NULL, st.
         }
     }
 
-    cl0 <- unique(data01$class)
+    cl0  <- unique(data01$ftype)
+    i0   <- which(data01$isobs==1)
+    yo1  <- trunc(median(unique(trunc(data01$time[i0]))))
+    ym1  <- trunc(median(unique(trunc(data01$time[-i0]))))
+    iyo1 <- which(trunc(data01$time)==yo1)
+    iym1 <- which(trunc(data01$time)==ym1)
 
-    q50o <- qdo(fit.qgam, 0.5, predict, newdata=data.frame(gmst=0, sdoy=1:data01.std.param$doy$o_max/data01.std.param$doy$o_max, class=cl0[1]))
-    q50m <- qdo(fit.qgam, 0.5, predict, newdata=data.frame(gmst=0, sdoy=1:data01.std.param$doy$m_max/data01.std.param$doy$m_max, class=cl0[2]))
+    q50o <- qdo(fit.qgam, 0.5, predict, newdata=data.frame(gmst=0, sdoy=data01$sdoy[iyo1], ftype=cl0[1]))
+    q50m <- qdo(fit.qgam, 0.5, predict, newdata=data.frame(gmst=0, sdoy=data01$sdoy[iym1], ftype=cl0[2]))
 
     annCyc.o     <- abs(diff(range(q50o)))
     annCyc.m     <- abs(diff(range(q50m)))
@@ -475,7 +511,7 @@ fn_findHotSeason <- function(data01, thHotSeason, st.qgam=NULL, st.pre=NULL, st.
         cat("Hot season found. Range:",annCyc.o, annCyc.m,cr)
 
     } else {
-
+        IsHotSeason <- TRUE
         hseas.o     <- c( 1 : data01.std.param$doy$o_max )
         hseas.m     <- c( 1 : data01.std.param$doy$m_max )
 
@@ -495,17 +531,16 @@ fn_findHotSeason <- function(data01, thHotSeason, st.qgam=NULL, st.pre=NULL, st.
     }
 
     ihotseas <- list(o=which(om_data$obs$info$doy %in% hotSdoy$o), m=which(om_data$mod$info$doy %in% hotSdoy$m))
-    ihotseas <- list(o=which(om_data$obs$info$doy %in% hotSdoy$o), m=which(om_data$mod$info$doy %in% hotSdoy$m))
-    hotseas <- list(IsHotSeason=IsHotSeason, hotSdoy=hotSdoy, ihotseas=ihotseas)
+    hotseas  <- list(IsHotSeason=IsHotSeason, hotSdoy=hotSdoy, ihotseas=ihotseas)
 
     return(hotseas)
 
 }
 
 ##############################################################################
-fn_findHotSeasonSingle <- function(data01, thHotSeason, facHotSeas=0.5, st.qgam=NULL, st.pre=NULL, st.pdf=NULL, DOPLOT=TRUE){
+fn_findHotSeasonSingle <- function(data01, thHotSeason, fracHotSeas=0.5, st.qgam=NULL, st.pre=NULL, st.pdf=NULL, DOPLOT=TRUE){
     
-    # facHotSeas is the fraction of the year that has to be in the hot season. 
+    # fracHotSeas is the fraction of the year that has to be in the hot season. 
     # E.g. 0.5 = half the year, 0.25 = quarter of the year eg ~JJA
 
     if (!exists("fit.qgam")) {
@@ -529,13 +564,14 @@ fn_findHotSeasonSingle <- function(data01, thHotSeason, facHotSeas=0.5, st.qgam=
 
         ix      <- which.max(q50)
         th1     <- q50[ix]
-        while(length(which(q50>th1)) < ceiling(max(data01$doy)*facHotSeas)) th1 <- th1 -0.1
+        while(length(which(q50>th1)) < ceiling(max(data01$doy)*fracHotSeas)) th1 <- th1 -0.1
         hseas <- which(q50>th1)
 
         cat("Hot season found. Range:",annCyc,cr)
 
     } else {
         hseas     <- c( 1 : max(data01$doy) )
+        IsHotSeason <- FALSE
         cat("No hot season found. Range:",annCyc,cr)
     }
 
@@ -907,10 +943,11 @@ fn_fitInitEvent <- function(events01, data01, initI, IsJoint=TRUE, SAVEINITEVENT
         if(evs$hotseas$IsHotSeason) {
             form.doy  <- 'cs'
             init2     <- init2[evs$hotseas$ihotseas]
-            evinit.m  <- data.frame(init=init2, sdoy=data01$sdoy[nob+evs$hotseas$ihotseas], cc=data01[nob+evs$hotseas$ihotseas,covariate], class='mod' )
+            # evinit.m  <- data.frame(init=init2, sdoy=data01$sdoy[nob+evs$hotseas$ihotseas], cc=data.frame(data01)[nob+evs$hotseas$ihotseas,covariate], class='mod' )
+            evinit.m  <- data.frame(init=init2, sdoy=data01$sdoy[evs$hotseas$ihotseas], cc=data.frame(data01)[evs$hotseas$ihotseas,covariate], class='mod' )
         } else {
             form.doy  <- 'cc' # ensure smooth is cyclic 'cc' if whole year is being modelled
-            evinit.m  <- data.frame(init=init2, sdoy=data01$sdoy[imod], cc=data01[imod,covariate], class='mod' )
+            evinit.m  <- data.frame(init=init2, sdoy=data01$sdoy[imod], cc=data.frame(data01)[imod,covariate], class='mod' )
         }
             # plot(evinit.m$init,pch=3,cex=.3)
             # plot(evinit.m$sdoy,pch=3,cex=.3)
@@ -939,10 +976,10 @@ fn_fitInitEvent <- function(events01, data01, initI, IsJoint=TRUE, SAVEINITEVENT
         if(evs$hotseas$IsHotSeason) {
             form.doy  <- 'cs'
             init2     <- init2[evs$hotseas$ihotseas]
-            evinit.o  <- data.frame(init=init2, sdoy=data01$sdoy[evs$hotseas$ihotseas], cc=data01[evs$hotseas$ihotseas,covariate], class='obs' )
+            evinit.o  <- data.frame(init=init2, sdoy=data01$sdoy[evs$hotseas$ihotseas], cc=data.frame(data01)[evs$hotseas$ihotseas,covariate], class='obs' )
         } else {
             form.doy  <- 'cc' # ensure smooth is cyclic 'cc' if whole year is being modelled
-            evinit.o  <- data.frame(init=init2, sdoy=data01$sdoy[iobs], cc=data01[iobs,covariate], class='obs' )
+            evinit.o  <- data.frame(init=init2, sdoy=data01$sdoy[iobs], cc=data.frame(data01)[iobs,covariate], class='obs' )
         }
             # plot(evinit.o$init,pch=3,cex=.3)
             # plot(evinit.o$sdoy,pch=3,cex=.3)
@@ -1100,7 +1137,7 @@ fn_plotInitEvent <- function(InitModel, ylim=c(0,0.1), main0='Init ~', st.pdf='p
 
 
 ##############################################################################
-fn_fitInitVal <- function(events01, gpd.th.u, scale.doy, fmla.IVgpd, IsJoint=TRUE){
+fn_jointFitInitVal <- function(events01, gpd.th.u, scale.doy, fmla.IVgpd, IsJoint=TRUE){
 
     # gpd.th.u  <- initV$th.u
     # scale.doy <- list(obs=data01.std.param$doy$o_max, mod=data01.std.param$doy$m_max)
@@ -2418,15 +2455,15 @@ fn_fitAutoMultiJointTermGLM <- function(events01, scale.doy, stdiag=NULL, stplot
 }
 
 ##############################################################################
-fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=NULL, DOPLOT=FALSE ){
+fn_fitJointTermGLM <- function(events01, glmfmla, scale.doy, stdiag=NULL, stplot=NULL, DOPLOT=FALSE ){
 
     # fmla must be preselected to be whole year or for hotseas as required
-    # fmla1N$day1 & fmla1N$dayN
+    # glmfmla$day1 & glmfmla$dayN
+    cat("fn_fitJointTermGLM: NB events01 AND fmla must be preselected to be ally or hotseas", cr)
 
     if(!is.null(stdiag)) conDiag    <- file(stdiag,'w')
     if(!is.null(stdiag)) writeLines(stdiag,con=conDiag)
     # if(!is.null(stdiag)) writeLines(capture.output(print()), con=conDiag)
-
     if(!is.null(stplot)) pdf(file=stplot, 10, 10)
 
     lag01 <- fn_lag_events01(events01, scale.doy)
@@ -2449,17 +2486,17 @@ fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     term_vars <- data.frame(fin=fin[i1], live=live[i1], tmp=om12[i0[i1],1], class=om12.iobs[i0[i1],1], gmst=om12.cc[i0[i1],1], D=om12.sdoy[i0[i1],1], A=om12.age[i0[i1],1])
 
     # termination model
-    fmla1  <- fmla1N$day1  ##  termGAM.fmla$hseas$day1 ##
+    fmla1  <- glmfmla$day1  
     term.1 <- NULL
-    if(class(fmla1N$day1)=='formula') {
+    if(class(glmfmla$day1)=='formula') {
         # term.1 <- gam(fmla1 , data=term_vars, family='gaussian')
         cat(paste(fmla1), cr)
-        term.1      <- glm(fmla1, data=term_vars, family="binomial")
-        term.1$fmla <- fmla1
+        term.1[[1]]      <- glm(fmla1, data=term_vars, family="binomial")
+        # term.1$fmla <- fmla1
         if(!is.null(stdiag)) {
             # writeLines("\n### Day 1 Termination GLM model ###",               con=conDiag)
             writeLines(capture.output(print(names(fmla1)) ),                     con=conDiag)
-            writeLines(capture.output(print(round(summary(term.1)$coeff,3))), con=conDiag)
+            writeLines(capture.output(print(round(summary(term.1[[1]])$coeff,3))), con=conDiag)
             writeLines("##########\n",       con=conDiag)
             # writeLines('### End Day 1 Termination GLM model ###\n\n',         con=conDiag)
         }
@@ -2467,7 +2504,7 @@ fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
             up.3by2()
             par(oma=c(0,0,2,0))
             # plot(term.1)
-            fn_termJointGLMPlot(term.1, main0="Term Day 1")
+            fn_termJointGLMPlot(term.1[[1]], main0="Term Day 1")
             mtext(paste("Day 1:",paste(capture.output(print(fmla1)),collapse='')),outer=TRUE,col=1,line=-0.2) # center justfied
             if(is.null(stplot)) readline("Continue to Day N?")
         }
@@ -2501,18 +2538,18 @@ fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     term_vars <- data.frame(fin=fin[i1], live=live[i1], tmp=om12[i0[i1],1], class=om12.iobs[i0[i1],1], gmst=om12.cc[i0[i1],1], D=om12.cosd[i0[i1],1], A=om12.age[i0[i1],1])
 
     # termination model
-    fmlaN  <- fmla1N$dayN  ##  termGAM.fmla$hseas$dayN  ##
+    fmlaN  <- glmfmla$dayN  
     term.N <- NULL
     live.N <- NULL
-    if(class(fmla1N$dayN)=='formula') {
+    if(class(glmfmla$dayN)=='formula') {
         # term.N <- gam(fmlaN , data=term_vars, family='gaussian')
         cat(paste(fmlaN), cr)
-        term.N      <- glm(fmlaN , data=term_vars, family='binomial')
-        term.N$fmla <- fmlaN
+        term.N[[1]]      <- glm(fmlaN , data=term_vars, family='binomial')
+        # term.N$fmla <- fmlaN
         if(!is.null(stdiag)) {
             # writeLines("\n### Day N Termination GLM model ###",               con=conDiag)
             writeLines(capture.output(print(names(fmlaN)) ),                     con=conDiag)
-            writeLines(capture.output(print(round(summary(term.N)$coeff,3))), con=conDiag)
+            writeLines(capture.output(print(round(summary(term.N[[1]])$coeff,3))), con=conDiag)
             writeLines("##########\n",       con=conDiag)
             # writeLines('### End Day N Termination GLM model ###\n\n',         con=conDiag)
         }
@@ -2520,7 +2557,7 @@ fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
             up.3by2()
             par(oma=c(0,0,2,0))
             # plot(term.N)
-            fn_termJointGLMPlot(term.N, main0="Term Day N")
+            fn_termJointGLMPlot(term.N[[1]], main0="Term Day N")
             mtext(paste("Day N:",paste(capture.output(print(fmlaN)),collapse='')),outer=TRUE,col=1,line=-0.2) # center justfied
         }
     } else {
@@ -2563,8 +2600,8 @@ fn_fitJointTermGLM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     if(!is.null(stdiag)) close(conDiag)
     if(!is.null(stplot)) dev.off()
 
-    names(term.1) <- names(fmla1N$day1)
-    names(term.N) <- names(fmla1N$dayN)
+    names(term.1) <- names(glmfmla$day1)
+    names(term.N) <- names(glmfmla$dayN)
     return(list(day1=term.1, dayN=term.N))
 }
 
@@ -2716,10 +2753,11 @@ fn_termJointGLMPlot2 <- function(hw.term1N, st.pdf=NULL){
 
 ### GAM Termination models
 ##############################################################################
-fn_fitJointTermGAM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=NULL, DOPLOT=FALSE  ){
+fn_fitJointTermGAM <- function(events01, gamfmla, scale.doy, stdiag=NULL, stplot=NULL, DOPLOT=FALSE  ){
 
-    # fmla must be preselected to be whole year or for hotseas as required
-    # fmla1N$day1 & fmla1N$dayN
+    # NB events AND fmla must be preselected to be whole year or for hotseas as required
+    # gamfmla$day1 & gamfmla$dayN
+    cat("fn_fitJointTermGAM: NB events01 AND fmla must be preselected to be ally or hotseas", cr)
 
     if(!is.null(stdiag)) conDiag    <- file(stdiag,'w')
     if(!is.null(stdiag)) writeLines(stdiag,con=conDiag)
@@ -2747,9 +2785,9 @@ fn_fitJointTermGAM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     term_vars <- data.frame(fin=fin[i1], live=live[i1], tmp=om12[i0[i1],1], class=om12.class[i0[i1]], gmst=om12.cc[i0[i1],1], D=om12.sdoy[i0[i1],1], A=om12.age[i0[i1],1])
 
     # termination model
-    fmla1  <- fmla1N$day1  ##  termGAM.fmla$hseas$day1 ##
+    fmla1  <- gamfmla$day1  ##  termGAM.fmla$hseas$day1 ##
     term.1 <- NULL
-    if(class(fmla1N$day1)=='formula') {
+    if(class(gamfmla$day1)=='formula') {
         term.1        <- gam(fmla1 , data=term_vars, family='binomial')
         # names(term.1) <- names(fmla1)
         if(!is.null(stdiag)) {
@@ -2801,10 +2839,10 @@ fn_fitJointTermGAM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     term_vars <- data.frame(fin=fin[i1], live=live[i1], tmp=om12[i0[i1],1], class=om12.class[i0[i1]], gmst=om12.cc[i0[i1],1], D=om12.sdoy[i0[i1],1], A=om12.age[i0[i1],1])
 
     # termination model
-    fmlaN  <- fmla1N$dayN  ##  termGAM.fmla$hseas$dayN  ##
+    fmlaN  <- gamfmla$dayN  ##  termGAM.fmla$hseas$dayN  ##
     term.N <- NULL
     live.N <- NULL
-    if(class(fmla1N$dayN)=='formula') {
+    if(class(gamfmla$dayN)=='formula') {
         term.N        <- gam(fmlaN , data=term_vars, family='binomial')
         # names(term.N) <- names(fmlaN)
 
@@ -2846,10 +2884,20 @@ fn_fitJointTermGAM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     }
     writeLines("###################################",       con=conDiag)
 
-    writeLines("\n\n### AIC/BIC Day 1 Termination GAM model ###",                     con=conDiag)
-    for(i in seq_along(fmla1)) writeLines(capture.output(print( paste(names(fmla1[i]),'     ',myround(AIC(term.1[[i]])),myround(BIC(term.1[[i]])))) ),  con=conDiag)
-    writeLines("\n\n### AIC/BIC Day N Termination GAM model ###",                     con=conDiag)
-    for(i in seq_along(fmlaN)) writeLines(capture.output(print( paste(names(fmlaN[i]),'     ',myround(AIC(term.N[[i]])),myround(BIC(term.N[[i]])))) ),  con=conDiag)
+all1.aic        <- lapply(term.1, AIC)
+all1.bic        <- lapply(term.1, BIC)
+names(all1.bic) <- names(gamfmla$day1)
+isbic1 <- sort(unlist(all1.bic), index.return=TRUE)$ix
+
+allN.aic        <- lapply(term.N, AIC)
+allN.bic        <- lapply(term.N, BIC)
+names(allN.bic) <- names(gamfmla$dayN)
+isbicN <- sort(unlist(allN.bic), index.return=TRUE)$ix
+
+    writeLines("\n\n### BIC,AIC Day 1 Termination GAM model ###",                     con=conDiag)
+    for(i in isbic1) writeLines(capture.output(print( paste(names(fmla1[i]),'\t\t\t',myround(all1.bic[[i]]),myround(all1.aic[[i]]))) ),  con=conDiag)
+    writeLines("\n\n### BIC,AIC Day N Termination GAM model ###",                     con=conDiag)
+    for(i in isbicN) writeLines(capture.output(print( paste(names(fmlaN[i]),'\t\t\t',myround(allN.bic[[i]]),myround(allN.aic[[i]]))) ),  con=conDiag)
     # writeLines(capture.output(print() ),                        con=conDiag)
     # writeLines(capture.output(print() ),                        con=conDiag)
 
@@ -2868,8 +2916,8 @@ fn_fitJointTermGAM <- function(events01, fmla1N, scale.doy, stdiag=NULL, stplot=
     if(!is.null(stdiag)) close(conDiag)
     if(!is.null(stplot)) dev.off()
 
-    names(term.1) <- names(fmla1N$day1)
-    names(term.N) <- names(fmla1N$dayN)
+    names(term.1) <- names(gamfmla$day1)
+    names(term.N) <- names(gamfmla$dayN)
     return(list(day1=term.1, dayN=term.N))
 }
 

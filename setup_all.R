@@ -21,5 +21,6 @@ source("../libs/fn_HotDays.R")
 library(data.table)
 library(PCICt)
 library(gratia)
+library(glue)
 source("../science/copilot_fn.R")
 

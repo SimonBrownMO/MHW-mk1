@@ -39,7 +39,7 @@ ch_hobwt <- fn_extractEventsGeneric(data01$anomaly[i0], 0.0, event.length)
 st.pdf.hseas   <- paste(sub('/Events','/Hotseason',dirname(st_events)),sub('.RData','.hotseason.pdf',basename(st_base)),sep='/')
 if(!dir.exists(dirname(st.pdf.hseas))) system(paste("mkdir -p",dirname(st.pdf.hseas) ) )
 
-hotseas        <- fn_findHotSeasonSingle(data01[i0,], thHotSeason, facHotSeas=facHotSeas, st.qgam=st_qgam, st.pre=st_preproc, st.pdf=st.pdf.hseas, DOPLOT=TRUE)
+hotseas        <- fn_findHotSeasonSingle(data01[i0,], thHotSeason, fracHotSeas=fracHotSeas, st.qgam=st_qgam, st.pre=st_preproc, st.pdf=st.pdf.hseas, DOPLOT=TRUE)
 ch_hobwt$hotseas <- list(IsHotSeason=hotseas$IsHotSeason, hotSdoy=hotseas$hotSdoy$o, ihotseas=hotseas$ihotseas$o)
 ch_hobwt$time      <- data01$time[i0]
 

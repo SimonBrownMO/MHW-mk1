@@ -12,7 +12,7 @@ subdir         <- c('HDmeta','HDref','Events/plots','Hotseason/plots','InitEvent
 for(d1 in subdir) system(paste("mkdir -p",paste(HDSAVEDIR,d1,sep='/') ) )
 st_metadata    <- sub('DDD',datestamp, sub('.RData','.HDmeta.DDD.RData',paste(HDSAVEDIR,subdir[1],basename(st_base),sep='/')))
 st_HDconfig    <- sub('DDD',datestamp, sub('.RData','.HDref.DDD.RData', paste(HDSAVEDIR,subdir[2],basename(st_base),sep='/')))
-
+# deg0C          <- 273.15
 HDconfig$general             <- list()
 HDconfig$general$cr          <- cr
 HDconfig$general$deg0C       <- deg0C
@@ -39,12 +39,12 @@ DOTERMPLOT      <- FALSE
 ############################################################################################################
 ### doFitInitEvent.R #########################################################################################
 SAVEINITEVENTDIAG    <- TRUE
-ievent.th.u          <- 0.90 # the GAM.fit can fail if this is too low with errors like: Error in eigen(hess1, symmetric = TRUE) : 0 x 0 matrix
+ievent.th.u          <- events01$info$event.th.u # 0.90 # the GAM.fit can fail if this is too low with errors like: Error in eigen(hess1, symmetric = TRUE) : 0 x 0 matrix
 ievent.k             <- list(doy=-1, cc=-1)  # doy=6 or 12, cc=5 or 3
 ievent.covaraite     <- 'gmst'
 # if(FUTURE_PROJECTION) ievent.k$cc <- -1 else ievent.k$cc <- -1     # GAM smoother (k) for climate change effect on heatwave initiation probability
 st_InitEvent <- sub('.RData','_IEventThXXX.RData',basename(st_base))
-st_InitEvent <- paste(HDSAVEDIR, 'InitEvent/', sub('XXX',event.th.u,st_InitEvent),sep='/')
+st_InitEvent <- paste(HDSAVEDIR, 'InitEvent', sub('XXX',ievent.th.u,st_InitEvent),sep='/')
 
 initI                   <- list()
 initI$st_InitEvent      <- st_InitEvent
@@ -61,10 +61,10 @@ HDconfig$initI          <- initI
 initV                   <- list()
 initV$SAVEINITVALUEDIAG <- TRUE
 initV$DOINITVALUEPLOT   <- DOINITVALUEPLOT
-initV$th.u              <- 0.90   ### NEED TO tune for best fit to data.  Has to be below the max of do.ptiles
+initV$th.u              <- events01$info$event.th.u # 0.90   ### NEED TO tune for best fit to data.  Has to be below the max of do.ptiles
 initV$iv.k              <- list(sdoy=-1, gmst=-1)  # doy=6 or 12, cc=5 or 3
 st_InitValue            <- sub('.RData','_IValueThXXX.RData',basename(st_base))
-st_InitValue            <- paste(HDSAVEDIR, 'InitValue/', sub('XXX', initV$th.u ,st_InitValue),sep='/')
+st_InitValue            <- paste(HDSAVEDIR, 'InitValue', sub('XXX', initV$th.u ,st_InitValue),sep='/')
 initV$st_InitValue      <- st_InitValue
 
 ####### evgam fomula to fit
@@ -72,16 +72,22 @@ initV$st_InitValue      <- st_InitValue
 fmla.IVgpd             <- list()
 fmla.IVgpd$S0.G0       <- list(excess ~ 1                                                                                                            , ~ 1 )
 fmla.IVgpd$SB.G0       <- list(excess ~ class                                                                                                        , ~ 1 )
+fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+
+fmla.IVgpd$S0.GB       <- list(excess ~ 1                                                                                                            , ~ class )
 fmla.IVgpd$SB.GB       <- list(excess ~ class                                                                                                        , ~ class )
-fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs='cc',k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
-fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs='cc',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ 1 )
-fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs='cc',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('cc','tp')) , ~ 1 )
-fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs='cc',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('cc','tp')) , ~ class )
-fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c('cc','tp')) , ~ 1 )
-fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c('cc','tp')) , ~ 1 )
-fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs='cc',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('cc','tp')) , ~ 1 )
-fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ 1 )
-fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs='cc',k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBD.GB      <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0D.GB      <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0T.GB      <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$S0DT.GB     <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ class )
 initV$fmla.ally.IVgpd <- fmla.IVgpd
 initV$fmla.ally.IVgpd$chosen <- NULL # "SBDTi.G0"  # OR NULL if want to dynamically select best fit.
 
@@ -89,24 +95,29 @@ initV$fmla.ally.IVgpd$chosen <- NULL # "SBDTi.G0"  # OR NULL if want to dynamica
 fmla.IVgpd             <- list()
 fmla.IVgpd$S0.G0       <- list(excess ~ 1                                                                                                            , ~ 1 )
 fmla.IVgpd$SB.G0       <- list(excess ~ class                                                                                                        , ~ 1 )
-fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs='tp',k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
-fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs='tp',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ 1 )
-fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs='tp',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('tp','tp')) , ~ 1 )
-fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c('tp','tp')) , ~ 1 )
-fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c('tp','tp')) , ~ 1 )
-fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs='tp',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('tp','tp')) , ~ 1 )
-fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ 1 )
-fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs='tp',k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
 
 fmla.IVgpd$S0.GB       <- list(excess ~ 1                                                                                                            , ~ class )
 fmla.IVgpd$SB.GB       <- list(excess ~ class                                                                                                        , ~ class )
-fmla.IVgpd$S0D.GB      <- list(excess ~        s(sdoy, bs='tp',k=iv.k$sdoy,by=class)                                                                 , ~ class )
-fmla.IVgpd$S0T.GB      <- list(excess ~                                               s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ class )
-fmla.IVgpd$S0DT.GB     <- list(excess ~        s(sdoy, bs='tp',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst)                                  , ~ class )
-fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs='tp',k=iv.k$sdoy,by=class) +s(gmst, bs="ds", k=iv.k$gmst) +ti(sdoy, gmst, bs=c('tp','tp')) , ~ class )
+fmla.IVgpd$SBD.GB      <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0D.GB      <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0T.GB      <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$S0DT.GB     <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ class )
 initV$fmla.hseas.IVgpd <- fmla.IVgpd
 
-### SELECT YOUR CHOSEN MODEL OR CHOOSE DYNAMICALY ON AIC CRITERIA?????
+### Either SELECT YOUR CHOSEN MODEL OR CHOOSE DYNAMIC selection ON AIC
+### recommend using defineModelForm/explore_InitValue.R to explore the model fits and select the best one before setting this.
+### If previously chosen
+fmla.ally.IVgpd.chosen   <- "SD.G0"
+fmla.hseas.IVgpd.chosen  <- "SD.G0"
 ### IF DYNAMIC
     # DO NOTHING
 ### ELSE
@@ -121,8 +132,8 @@ HDconfig$initV         <- initV
 ############################################################################################################
 ### doFitHt.R #####################################################################################
 SAVEHTDIAG    <- TRUE
-ht.th.u       <- 0.90
-cr.th.u       <- 0.90
+ht.th.u       <- events01$info$event.th.u # 0.90
+cr.th.u       <- events01$info$event.th.u # 0.90
 ht.cov.sig.th <- 0.9    # likelihood ratio test needs to be above this for covariate to be used
 lam.pen0      <- 0.0  # Needs to be zero unless you are ABSOLUTELY sure. penalty to reduce covaiate impact on mu & sigma
 
@@ -139,7 +150,7 @@ nsim1        <- 2e4  # does not need to be large as most of the simulating is do
 ht.exclude.l <- -2 # 0.7  ### exclude temps below this as they do not represent synoptic conditinos associated with heatwave generating processes (based on tempterature)
                      ### used to be 0.001 to remove the clustering around zero
 st_Ht <- sub('.RData','_HtThXXX.RData',basename(st_base))
-st_Ht <- paste(HDSAVEDIR, 'HT/', sub('XXX', ht.th.u ,st_Ht),sep='/')
+st_Ht <- paste(HDSAVEDIR, 'HT', sub('XXX', ht.th.u ,st_Ht),sep='/')
 
 fitht                           <- list()
 fitht$st_Ht                     <- st_Ht
@@ -165,14 +176,14 @@ HDconfig$fitht                  <- fitht
 ############################################################################################################
 ### doFitTerm.R #########################################################################################
 SAVETERMDIAG    <- TRUE
-term.th.u       <- 0.90
-durationmax     <- event.length # 40 # HW terminated after this number of days.  This is not the value by which the covariate has been scaled, which is daymax
+term.th.u       <- events01$info$event.th.u # 0.90
+durationmax     <- events01$info$event.length # 40 # HW terminated after this number of days.  This is not the value by which the covariate has been scaled, which is daymax
 scaleOldTerm    <- 0.8  # long duration HW are pooled to calc a fixed term prob.
                            # In reality Pterm falls with age. This factor reduces the pooled probability to account for this
 # term.tdac  <- gam(fin ~ s(tmp,k=3) +s(doy,bs=form.doy,k=4) +s(age,k=3) +s(cc,k=3),  data=termination_vars[ix1,],family="binomial")
 tr.k            <- list(tmp=-1, doy=4, D=4, gmst=6, age=6, cc=6)
 st_Term <- sub('.RData','_Term_ThXXX.RData',basename(st_base))
-st_Term <- paste(HDSAVEDIR, 'Term/', sub('XXX', term.th.u ,st_Term),sep='/')
+st_Term <- paste(HDSAVEDIR, 'Term', sub('XXX', term.th.u ,st_Term),sep='/')
 
 ### GAM
 termGAM.fmla <- list()
@@ -214,7 +225,7 @@ termGAM.fmla$hseas <- list(day1=day1, dayN=dayN)
  day1$TIC      <- fin ~  s(tmp, k=4) +class +s(gmst,k=tr.k$gmst)
  day1$TID      <- fin ~  s(tmp, k=4) +class                      +s(D,k=tr.k$D,bs='cc',by=class)
  day1$TICD     <- fin ~  s(tmp, k=4) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class)
- day1$TICDiCD  <- fin ~  s(tmp, k=4) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class) +ti(gmst,D,bs=c('tp','cc'))
+ day1$TICDiCD  <- fin ~  s(tmp, k=4) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class) +ti(gmst,D,bs=c("ts",'cc'))
  day1$TCDiCD   <- fin ~  s(tmp, k=4)        +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc')          +ti(gmst,D)
  day1$TCD      <- fin ~  s(tmp, k=4)        +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc')
  day1$TC       <- fin ~  s(tmp, k=4)        +s(gmst,k=tr.k$gmst)
@@ -227,7 +238,7 @@ termGAM.fmla$hseas <- list(day1=day1, dayN=dayN)
  dayN$TICD     <- fin ~  s(tmp) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class)
  dayN$TICDA    <- fin ~  s(tmp) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class) +s(A, k=5)
  dayN$TA       <- fin ~  s(tmp)                                                             +s(A, k=5)
- dayN$TICDAiCD <- fin ~  s(tmp) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class) +s(A, k=5) +ti(gmst,D,bs=c('tp','cc'))
+ dayN$TICDAiCD <- fin ~  s(tmp) +class +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc',by=class) +s(A, k=5) +ti(gmst,D,bs=c("ts",'cc'))
  dayN$TCDAiCD  <- fin ~  s(tmp)        +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc')          +s(A, k=5) +ti(gmst,D)
  dayN$TCDA     <- fin ~  s(tmp)        +s(gmst,k=tr.k$gmst) +s(D,k=tr.k$D,bs='cc')          +s(A, k=5)
  dayN$TCA      <- fin ~  s(tmp)        +s(gmst,k=tr.k$gmst)                                 +s(A, k=5)

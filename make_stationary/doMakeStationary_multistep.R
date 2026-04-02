@@ -33,11 +33,13 @@ if(DOSTEP1) {
     # if(STEP1 == "TWOSTEP") {
         ## fit 1
         ft1A.gam       <- gam(fmla1A, data=data01, method="GCV.Cp", select=TRUE) 
+        data01$ft1A    <- predict(ft1A.gam)
+        data01$resid1A <- resid(ft1A.gam)
 
         ## fit 2
-        data01$resid1A    <- resid(ft1A.gam)
-        ft1B.gam          <- gam(fmla1B, data=data01, method="GCV.Cp", select=TRUE) 
-        data01$resid1B    <- resid(ft1B.gam)
+        ft1B.gam       <- gam(fmla1B, data=data01, method="GCV.Cp", select=TRUE) 
+        data01$ft1B    <- predict(ft1B.gam)
+        data01$resid1B <- resid(ft1B.gam)
 
         cat("################################",cr)
         cat("Summary ft1A.gam",cr)
@@ -60,6 +62,7 @@ if(DOSTEP1) {
         sp.sz     <- rep(1, length(which(grepl("sdoy,fYearOM", names(ft0$sp)))))                  
         rm(ft0)
         ft1AB.gam         <- gam(fmla1AB, data=data01, method="GCV.Cp", select=TRUE) 
+        data01$ft1AB      <- predict(ft1AB.gam)
         data01$residStep1 <- resid(ft1AB.gam)
 
         cat("################################",cr)
@@ -168,7 +171,6 @@ fn_fit_MSgpd(data01, ms.thgpd.u, fmla.MSgpd, chosen.MSgpd.name=chosen.MSgpd.name
     # st.u0 <- paste(MSconfig$files$MSSAVEDIR,sub('.RData','_u0.RData',basename(MSconfig$files$st_base)),sep='' )
     save(file=st_msdata01, data01)
     cat(cr,"Saved msdata",cr,st_msdata01,cr)
-readline("stop)")
 
     ### general testing plots
         stin   <- MSconfig$files$st_qgam
@@ -196,5 +198,3 @@ readline("stop)")
         stdiag <- paste(dirname(stin),'plots',sub('.RData','.pdf',basename(stin)),sep='/')
         fn_diag_q2p_twostep(savefile=stdiag, width=10, height=7, DOPAUSE=FALSE)
     }
-
-    tidy()
