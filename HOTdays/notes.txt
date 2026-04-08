@@ -1,6 +1,16 @@
-# HOTdays notes
+# HOTdays notes bottom post
 
 2026.04.07
     - really need a rewrite of all the fitting code so that model definitions all occurs outsifde of the main fitting functions and steps.
     - ie it all occurs in the defineModelForm directory
     - at the moment it is half and half
+
+2026.04.07
+    - think I have made a right mess 
+    - commit "Half cock"
+    - half cock re-write moving to joint analysis so all sorts of loose ends and bugs introduced
+    - no real thought of what the diferent HOTDays models should look like
+    - event extractin I think is OK
+    - perhaps need to start again on the joint code for MHW using the joint libraries that have been previously written 
+    and making the data fit that code rather than mashing the code to fit the new data.
+    - what a waste of time.
