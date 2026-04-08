@@ -1,0 +1,79 @@
+explore-term-diag1.ally.gam.txt
+
+###################################
+### Day 1 Termination GAM model ###
+[1] "TICD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    bs = "cc", by = class)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.0527     0.4239  -7.201 5.96e-13 ***
+classmod      0.5088     0.4093   1.243    0.214    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                    edf Ref.df Chi.sq  p-value    
+s(tmp)        1.0000454      1 27.070 2.48e-07 ***
+s(gmst)       1.0000157      1  4.350  0.03701 *  
+s(D):classobs 0.0001264      2  0.000  0.45271    
+s(D):classmod 1.6034783      2  8.444  0.00517 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.128   Deviance explained = 18.4%
+UBRE = -0.33023  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 275.2759 297.7948
+##########
+
+
+###################################
+### Day N Termination GAM model ###
+[1] "TICDA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    bs = "cc", by = class) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.3056     0.2795 -11.825   <2e-16 ***
+classmod      0.3874     0.1858   2.085   0.0371 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                    edf Ref.df  Chi.sq  p-value    
+s(tmp)        3.2696825  4.056 339.150  < 2e-16 ***
+s(gmst)       4.8411288  4.987  21.180 0.000871 ***
+s(D):classobs 0.0018173  2.000   0.002 0.429910    
+s(D):classmod 0.0002448  2.000   0.000 0.843520    
+s(A)          2.3464870  2.817  40.249  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.296   Deviance explained = 33.1%
+UBRE = -0.43895  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1389.714 1462.162
+##########
+
+###################################
+
+
+### BIC,AIC Day 1 Termination GAM model ###
+[1] "TICD \t\t\t 297.8 275.3"
+
+
+### BIC,AIC Day N Termination GAM model ###
+[1] "TICDA \t\t\t 1462.2 1389.7"

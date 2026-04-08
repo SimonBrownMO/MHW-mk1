@@ -1,0 +1,79 @@
+explore-term-diag1.hotseas.gam.txt
+
+###################################
+### Day 1 Termination GAM model ###
+[1] "TICD"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.1572     0.4487  -7.037 1.96e-12 ***
+classmod      0.5802     0.4309   1.347    0.178    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df Chi.sq p-value    
+s(tmp)        1.000  1.000 27.201  <2e-16 ***
+s(gmst)       1.000  1.000  4.370  0.0366 *  
+s(D):classobs 1.000  1.000  1.021  0.3123    
+s(D):classmod 2.687  2.927  8.884  0.0247 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =  0.127   Deviance explained = 18.9%
+UBRE = -0.32391  Scale est. = 1         n = 411
+[1] "AIC    BIC"
+[1] 277.8741 308.7665
+##########
+
+
+###################################
+### Day N Termination GAM model ###
+[1] "TICDA"
+
+Family: binomial 
+Link function: logit 
+
+Formula:
+fin ~ s(tmp) + class + s(gmst, k = tr.k$gmst) + s(D, k = tr.k$D, 
+    by = class) + s(A, k = 5)
+
+Parametric coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -3.3043     0.2826 -11.691   <2e-16 ***
+classmod      0.3788     0.1873   2.022   0.0432 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Approximate significance of smooth terms:
+                edf Ref.df  Chi.sq p-value    
+s(tmp)        3.394  4.195 341.625 < 2e-16 ***
+s(gmst)       4.838  4.986  20.670 0.00109 ** 
+s(D):classobs 1.000  1.000   4.380 0.03636 *  
+s(D):classmod 1.000  1.000   0.164 0.68606    
+s(A)          2.377  2.850  40.982 < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+R-sq.(adj) =    0.3   Deviance explained = 33.3%
+UBRE = -0.4393  Scale est. = 1         n = 2477
+[1] "AIC    BIC"
+[1] 1388.854 1473.805
+##########
+
+###################################
+
+
+### BIC,AIC Day 1 Termination GAM model ###
+[1] "TICD \t\t\t 308.8 277.9"
+
+
+### BIC,AIC Day N Termination GAM model ###
+[1] "TICDA \t\t\t 1473.8 1388.9"

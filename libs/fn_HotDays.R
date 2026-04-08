@@ -500,12 +500,12 @@ fn_findHotSeason <- function(data01, thHotSeason, st.qgam=NULL, st.pre=NULL, st.
 
         ix      <- which.max(q50o)
         th1     <- q50o[ix]
-        while(length(which(q50o>th1)) < ceiling(data01.std.param$doy$o_max/2)) th1 <- th1 -0.1
+        while(length(which(q50o>th1)) < ceiling(365/2)) th1 <- th1 -0.1
         hseas.o <- which(q50o>th1)
 
         ix      <- which.max(q50m)
         th1     <- q50m[ix]
-        while(length(which(q50m>th1)) < ceiling(data01.std.param$doy$m_max/2)) th1 <- th1 -0.1
+        while(length(which(q50m>th1)) < ceiling(360/2)) th1 <- th1 -0.1
         hseas.m <- which(q50m>th1)
 
         cat("Hot season found. Range:",annCyc.o, annCyc.m,cr)
@@ -616,6 +616,7 @@ fn_extractEvents <- function(data01, ch.lev.u, event.length) {
     max.len <- max(sapply(ch.idx,length))
     ch.st.l <- array(NA,dim=c(max.len+2, length(ch.pk$absichains)))
     ch.doy  <- array(NA,dim=dim(ch.st.l))
+    ch.sdoy <- array(NA,dim=dim(ch.st.l))
     ch.age  <- array(NA,dim=dim(ch.st.l))
     ch.i    <- array(NA,dim=dim(ch.st.l))
     ch.st.o <- array(NA,dim=dim(ch.st.l))
@@ -633,6 +634,7 @@ fn_extractEvents <- function(data01, ch.lev.u, event.length) {
             ch.st.l[1:(length(idays)), i] <-        x.l[idays]
             ch.st.o[1:(length(idays)), i] <-   data01$x[idays]
              ch.doy[1:(length(idays)), i] <- data01$doy[idays]
+             ch.sdoy[1:(length(idays)), i]<- data01$sdoy[idays]
              ch.age[1:(length(idays)), i] <- c(0,1:(length(idays)-2),0) # make day before and after =0
             ch.time[[i]]                  <- data01$time[idays]
              ch.gmst[i]                   <- data01$gmst[idays[2]]
@@ -651,6 +653,7 @@ fn_extractEvents <- function(data01, ch.lev.u, event.length) {
         ch.st.l <- ch.st.l[, -i_fail]
         ch.st.o <- ch.st.o[, -i_fail]
         ch.doy  <-  ch.doy[, -i_fail]
+        ch.sdoy <- ch.sdoy[, -i_fail]
         ch.age  <-  ch.age[, -i_fail]
         ch.time <- ch.time[  -i_fail]
         ch.gmst <- ch.gmst[  -i_fail]
@@ -674,7 +677,7 @@ fn_extractEvents <- function(data01, ch.lev.u, event.length) {
 
     cat("fn_extractEvents: No of chains found",length(ch.pk$absichains),cr)
     x_chains <- list(ch.pk=ch.pk, ch.st.l=ch.st.l, ch.st.o=ch.st.o,
-                            ch.doy=ch.doy, ch.age=ch.age, ch.i=ch.i, ch.time=ch.time,
+                            ch.doy=ch.doy, ch.sdoy=ch.sdoy, ch.age=ch.age, ch.i=ch.i, ch.time=ch.time,
                             ch.sev=ch.sev, ch.mean.sev=ch.mean.sev, ch.pkval=ch.pkval,
                             ch.pkval.day=ch.pkval.day, ch.duration=ch.duration, ch.gmst=ch.gmst, ch.th.u=ch.lev.u)
 
@@ -788,6 +791,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
     max.len <- max(sapply(ch.idx,length))
     ch.st.l <- array(NA,dim=c(max.len+2, length(ch.pk$absichains)))
     ch.doy  <- array(NA,dim=dim(ch.st.l))
+    ch.sdoy <- array(NA,dim=dim(ch.st.l))
     ch.age  <- array(NA,dim=dim(ch.st.l))
     ch.i    <- array(NA,dim=dim(ch.st.l))
     ch.st.o <- array(NA,dim=dim(ch.st.l))
@@ -806,6 +810,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
             ch.st.l[1:(length(idays)), i] <-        x.l[idays]
             ch.st.o[1:(length(idays)), i] <-   data01$x[idays]
              ch.doy[1:(length(idays)), i] <- data01$doy[idays]
+             ch.sdoy[1:(length(idays)), i] <- data01$sdoy[idays]
              ch.age[1:(length(idays)), i] <- c(0,1:(length(idays)-2),0) # make day before and after =0
             ch.time[[i]]                  <- data01$time[idays]
              ch.gmst[i]                   <- data01$gmst[idays[2]]
@@ -823,6 +828,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
         ch.st.l <- ch.st.l[, -i_fail]
         ch.st.o <- ch.st.o[, -i_fail]
         ch.doy  <-  ch.doy[, -i_fail]
+        ch.sdoy <-  ch.sdoy[, -i_fail]
         ch.age  <-  ch.age[, -i_fail]
         ch.time <- ch.time[  -i_fail]
         ch.gmst <- ch.gmst[  -i_fail]
@@ -846,7 +852,7 @@ fn_extractEventsAbs <- function(simevents, th.abs) {
 
     cat("fn_extractEvents: No of chains found",length(ch.pk$absichains),cr)
     x_chains <- list(ch.pk=ch.pk, ch.st.l=ch.st.l, ch.st.o=ch.st.o,
-                            ch.doy=ch.doy, ch.age=ch.age, ch.i=ch.i, ch.time=ch.time,
+                            ch.doy=ch.doy, ch.sdoy=ch.sdoy, ch.age=ch.age, ch.i=ch.i, ch.time=ch.time,
                             ch.sev=ch.sev, ch.mean.sev=ch.mean.sev, ch.pkval=ch.pkval,
                             ch.pkval.day=ch.pkval.day, ch.duration=ch.duration, ch.gmst=ch.gmst, ch.th.u=ch.lev.u)
 
@@ -895,7 +901,7 @@ fn_plotEvents <- function(events, data, nplot=3, savefile=NULL){
 
 ### Initialisation
 ##############################################################################
-fn_fitInitEvent <- function(events01, data01, initI, IsJoint=TRUE, SAVEINITEVENTDIAG=TRUE){
+fn_fitInitEvent_mk1 <- function(events01, data01, initI, IsJoint=TRUE, SAVEINITEVENTDIAG=TRUE){
 
     # events01  : extraced events for both model and obs
         #  $ ch.pk       : Named list()
@@ -1050,55 +1056,86 @@ fn_fitInitEvent <- function(events01, data01, initI, IsJoint=TRUE, SAVEINITEVENT
 }
 
 ##############################################################################
-fn_plotInitEvent <- function(InitModel, ylim=c(0,0.1), main0='Init ~', st.pdf='plotInitEvent.pdf'){
+fn_fitInitEvent <- function(fmla, events01, data01, initI, DOHOTSEASON=FALSE, SAVEINITEVENTDIAG=TRUE, IsJoint=TRUE) {
 
-    # cccov  <- initI$ievent.covaraite
-    # cov.n  <- attributes(hw.term$terms)$term.labels
-    # r.sdoy <- range(InitModel$model$sdoy)
-    # newo.d <- data.frame(sdoy=seq(r.sdoy[1],   r.sdoy[2],   length=100),
-    #                      cc=median(data01[,covar]),
-    #                      class='obs')
-    # newo.c <- data.frame(sdoy=median(data01$sdoy),
-    #                      cc=seq(min(data01[,covar]),max(data01[,covar]),length=100),
-    #                      class='obs')
-    # newm.d       <- newo.d
-    # newm.d$class <- 'mod'
-    # newm.c       <- newo.c
-    # newm.c$class <- 'mod'
+    # slimed down version of fn_fitInitEvent_mk1
+    # NB either pass in ally events OR hotseason events, but not both
 
-    # pro.d <- predict.gam(InitModel, newdata=newo.d,type="response")
-    # prm.d <- predict.gam(InitModel, newdata=newm.d,type="response")
-    # pro.c <- predict.gam(InitModel, newdata=newo.c,type="response")
-    # prm.c <- predict.gam(InitModel, newdata=newm.c,type="response")
+    covariate <- initI$ievent.covaraite
+    evs.o     <- events01$obs
+    evs.m     <- events01$mod
 
-    # up.2()
-    #   plot(newo.d$sdoy, pro.d, ylim=ylim, ylab='Probability', main='HW Initiation prob wrt DOY')
-    # points(newo.d$sdoy, prm.d, col=2, cex=.3)
+    if(IsJoint) {
+        iall   <- seq_along(data01$isobs) # use all data for joint model
+        iobs   <- which(data01$isobs==1)
+        imod   <- which(data01$isobs!=1)
+        init2  <- c(rep(0, length(iobs)), rep(0, length(imod))) # make an array for all data
 
-    #   plot(newo.c$cc, pro.c, ylim=ylim, ylab='Probability', main=paste('HW Initiation prob wrt',covar))
-    # points(newo.c$cc, prm.c, col=2, cex=.3)
+        init2[c(evs.o$ch.i[2,], evs.m$ch.i[2,])] <- 1  # 2=first day of heatwave, absolute index for the original data
 
-    ##################################
+        if(DOHOTSEASON) {
+            id01           <- c(evs.o$hotseas$ihotseas, evs.m$hotseas$ihotseas)
+            stout_InitDiag <- paste(dirname(st_InitEvent),'diag',sub('.RData','.diag.hseas.txt',basename(st_InitEvent)),sep='/')
+            stout_InitDiag <- sub("Ally","Hotseason",stout_InitDiag)
+        } else {
+            id01           <- seq_along(data01$isobs)
+            stout_InitDiag <- paste(dirname(st_InitEvent),'diag',sub('.RData','.diag.ally.txt',basename(st_InitEvent)),sep='/')
+        }
+
+        evinit.j  <- data.frame(init=init2[id01], sdoy=data01$sdoy[id01], cc=data.frame(data01)[id01,covariate], ftype=data01$ftype[id01] )
+
+        fit.init  <- gam(fmla, data=evinit.j, family="binomial")
+
+    } else {
+        cat("fn_fitInitEvent: Non-joint fitting not implemented yet",cr)
+    }
+
+    if(SAVEINITEVENTDIAG) {
+        conDiag    <- file(stout_InitDiag,'w')
+        writeLines(stout_InitDiag, con=conDiag)
+        writeLines(st_InitEvent,   con=conDiag)
+        writeLines('\n',   con=conDiag)
+
+        if(!is.null(fit.init)) {
+            writeLines("### summary.gam(fit.init) #################################",con=conDiag)
+            writeLines(capture.output(summary.gam(fit.init)),con=conDiag)
+            writeLines("######################################################\n\n",con=conDiag)
+       }
+        close(conDiag)
+        cat("fit.init diagnostics written to",stout_InitDiag,cr)
+    }
+
+    return(list(Model=fit.init, initI=initI))
+}
+
+##############################################################################
+fn_plotInitEvent <- function(InitModel, ylim=NULL, main0='Init ~', st.pdf='plotInitEvent.pdf'){
 
     if(class(InitModel)[1]!="gam") {
         cat("fn_termJointGAMPlot: must be a GAM object",cr)
         return(NULL)
     }
-        if(!is.null(st.pdf)) pdf(file=st.pdf) else x11()
 
-    # hw.cov <- hw.term$data
+    if(!is.null(st.pdf)) pdf(file=st.pdf) else x11()
+
     hw.cov <- InitModel$model
     cov.n  <- attributes(InitModel$terms)$term.labels
-    if(any(grepl('class',cov.n))) {
-        ISCLASS <- TRUE
-        cov.n  <- cov.n[cov.n!='class']
-    } else ISCLASS <- FALSE
+    lfactor <- grepl("factor",attr(terms(InitModel$model),"dataClasses")[-1])  # first term is response, so remove
+    if(any(lfactor)) {
+        ISFACTOR <- TRUE
+        cov.n    <- cov.n[!lfactor]
+        fac.n    <- names(attr(terms(InitModel$model),"dataClasses")[-1])[lfactor]
+        fac.l    <- levels(InitModel$model[[fac.n]])
+    } else {
+        ISFACTOR <- FALSE
+        fac.n    <- NULL
+    }
 
     cov.q  <- NULL
     cov.x  <- NULL
     for(i in seq_along(cov.n)) {
-        cov.q      <- cbind(cov.q, quantile( hw.cov[[cov.n[i]]] ,c(0.1,0.5, 0.9), na.rm=T))
-        cov.x[[i]] <- seq(min(hw.cov[[cov.n[i]]],na.rm=T), max(hw.cov[[cov.n[i]]],na.rm=T), length=100)
+        cov.q      <- cbind(cov.q, quantile( hw.cov[[cov.n[i]]] ,c(0.1,0.5, 0.9), na.rm=TRUE))
+        cov.x[[i]] <- seq(min(hw.cov[[cov.n[i]]],na.rm=T), max(hw.cov[[cov.n[i]]],na.rm=TRUE), length=100)
     }
 
     df1   <- NULL
@@ -1106,9 +1143,9 @@ fn_plotInitEvent <- function(InitModel, ylim=c(0,0.1), main0='Init ~', st.pdf='p
     df1   <- data.frame(df1)
     df0   <- df1
     up.2()
-    if(ISCLASS) {
-        df1$class <- 'obs'
-        df0$class <- 'mod'
+    if(ISFACTOR) {
+        df0[[fac.n]] <- factor(c(1,2),labels=fac.l)[1]
+        df1[[fac.n]] <- factor(c(1,2),labels=fac.l)[2]
         for(i in seq_along(cov.n)) {
             df0b             <- df0
             df0b[[cov.n[i]]] <- cov.x[[i]]
@@ -1116,28 +1153,30 @@ fn_plotInitEvent <- function(InitModel, ylim=c(0,0.1), main0='Init ~', st.pdf='p
             df1b[[cov.n[i]]] <- cov.x[[i]]
             newy0            <- predict(InitModel,df0b,type="response")
             newy1            <- predict(InitModel,df1b,type="response")
-            plot(cov.x[[i]], newy0, ylim=ylim, ty='l', lwd=2, main=paste(main0,cov.n[i]), ylab='Prob Initiation', xlab="Covariate")
+            if(is.null(ylim)) ylim <- range(c(newy0,newy1))
+             plot(cov.x[[i]], newy0, ylim=ylim, ty='l', lwd=2, main=paste(main0,cov.n[i]), ylab='Prob Initiation', xlab="Covariate")
             lines(cov.x[[i]], newy1, col=2, lwd=2, lty=3)
             grid()
         }
-        legend('bottomleft',c('Model','Obs'),col=1:2, pch=NA, lty=c(1,3), lwd=2, bty='n')
+        legend('bottomleft',c('Obs','Model'),col=1:2, pch=NA, lty=c(1,3), lwd=2, bty='n')
     } else {
-        df1$class <- 'obs'
-        for(i in seq_along(cov.n)) {
-            df1b             <- df1
-            df1b[[cov.n[i]]] <- cov.x[[i]]
-            newy1            <- predict(InitModel,df1b,type="response")
-            plot(cov.x[[i]], newy1, ylim=ylim, ty='l', lwd=2, main=paste(main0,cov.n[i]), ylab='Prob Initiation', xlab="Covariate")
-            grid()
-        }
-        legend('bottomleft',c('Obs'),col=1, pch=NA, lty=1, lwd=2, bty='n')
+        cat("fn_plotInitEvent: No factor covariates not yet implementd",cr)
+        # df1$fac.n <- 'obs'
+        # for(i in seq_along(cov.n)) {
+        #     df1b             <- df1
+        #     df1b[[cov.n[i]]] <- cov.x[[i]]
+        #     newy1            <- predict(InitModel,df1b,type="response")
+        #     plot(cov.x[[i]], newy1, ylim=ylim, ty='l', lwd=2, main=paste(main0,cov.n[i]), ylab='Prob Initiation', xlab="Covariate")
+        #     grid()
+        # }
+        # legend('bottomleft',c('Obs'),col=1, pch=NA, lty=1, lwd=2, bty='n')
     }
     if(!is.null(st.pdf)) dev.off()
 }
 
 
 ##############################################################################
-fn_jointFitInitVal <- function(events01, gpd.th.u, scale.doy, fmla.IVgpd, IsJoint=TRUE){
+fn_jointFitInitVal <- function(events01, gpd.th.u, fmla.IVgpd, IsJoint=TRUE){
 
     # gpd.th.u  <- initV$th.u
     # scale.doy <- list(obs=data01.std.param$doy$o_max, mod=data01.std.param$doy$m_max)
@@ -1156,8 +1195,8 @@ fn_jointFitInitVal <- function(events01, gpd.th.u, scale.doy, fmla.IVgpd, IsJoin
         d1.o <- events01$obs$ch.st.l[2,] # chains start the day before heatwave
         d1.m <- events01$mod$ch.st.l[2,] # chains start the day before heatwave
 
-        sdoy.o <- events01$obs$ch.doy[2,]/scale.doy$obs
-        sdoy.m <- events01$mod$ch.doy[2,]/scale.doy$mod
+        sdoy.o <- events01$obs$ch.sdoy[2,]
+        sdoy.m <- events01$mod$ch.sdoy[2,]
 
         gmst.o <- events01$obs$ch.gmst
         gmst.m <- events01$mod$ch.gmst
@@ -1333,7 +1372,7 @@ fn_plotInitVal <- function(fit.IVgpd, newdata, xplot=1, retp=NULL, st.pdf=NULL){
 ##############################################################################################
 
 ##############################################################################
-fn_fitJointHt <- function(events01, ht.th.u, cr.th.u, scale.doy, IsJoint=TRUE){
+fn_fitJointHt <- function(events01, ht.th.u, cr.th.u, IsJoint=TRUE){
 
     ht.th.l <- qlaplace(ht.th.u)
     cr.th.l <- qlaplace(cr.th.u)
@@ -1431,7 +1470,7 @@ fn_fitJointHt <- function(events01, ht.th.u, cr.th.u, scale.doy, IsJoint=TRUE){
             #         # points(om.1E1,om12[om.1E1,2],col=4,pch=1,cex=1)
         #   ### end lagging
 
-       lag01 <- fn_lag_events01(events01, scale.doy)
+       lag01 <- fn_lag_events01(events01)
        list2env(lag01$om,env=parent.frame())
 
        #########################################################################################
@@ -2031,24 +2070,24 @@ fn_htJointPlot <- function(htJ, dodays=c(3,4,5,6), stplot=NULL){
 }
 
 ##############################################################################
-fn_lag_events01 <- function(events01, scale.doy) {
+fn_lag_events01 <- function(events01) {
 
     ### simpler lagging. unwrap the 2d chain array to 1d
     ## obs
     ndata    <- length(events01$obs$ch.st.l)
     o12      <- array(NA,dim=c(ndata,2))
     o12.age  <- array(NA,dim=c(ndata,2))
-    o12.doy  <- array(NA,dim=c(ndata,2))
+    o12.sdoy  <- array(NA,dim=c(ndata,2))
     o12.cc   <- array(NA,dim=c(ndata,2))
     # day t=t data
     o12[ ,1]     <- events01$obs$ch.st.l[1:ndata]  # unwrap the 2d array to 1d
     o12.age[ ,1] <-  events01$obs$ch.age[1:ndata]
-    o12.doy[ ,1] <-  events01$obs$ch.doy[1:ndata]
+    o12.sdoy[ ,1] <-  events01$obs$ch.sdoy[1:ndata]
     o12.cc[ ,1]  <- rep(events01$obs$ch.gmst, each=dim(events01$obs$ch.st.l)[1]) # need to do something different for d1.cc
     # day t=t+1 data
         o12[1:(ndata-1) ,2] <- events01$obs$ch.st.l[2:ndata]
     o12.age[1:(ndata-1) ,2] <-  events01$obs$ch.age[2:ndata]
-    o12.doy[1:(ndata-1) ,2] <-  events01$obs$ch.doy[2:ndata]
+    o12.sdoy[1:(ndata-1) ,2] <-  events01$obs$ch.sdoy[2:ndata]
      o12.cc[            ,2] <- o12.cc[ ,1]
     # filter removing cluster of points near zero, NAs and day before and after which have ages of 0
     # o.igood <- NULL
@@ -2067,17 +2106,17 @@ fn_lag_events01 <- function(events01, scale.doy) {
     ndata    <- length(events01$mod$ch.st.l)
     m12      <- array(NA,dim=c(ndata,2))
     m12.age  <- array(NA,dim=c(ndata,2))
-    m12.doy  <- array(NA,dim=c(ndata,2))
+    m12.sdoy  <- array(NA,dim=c(ndata,2))
     m12.cc   <- array(NA,dim=c(ndata,2))
     # day t=t data
     m12[ ,1]     <- events01$mod$ch.st.l[1:ndata]  # unwrap the 2d array to 1d
     m12.age[ ,1] <-  events01$mod$ch.age[1:ndata]
-    m12.doy[ ,1] <-  events01$mod$ch.doy[1:ndata]
+    m12.sdoy[ ,1] <-  events01$mod$ch.sdoy[1:ndata]
     m12.cc[ ,1]  <- rep(events01$mod$ch.gmst, each=dim(events01$mod$ch.st.l)[1]) # need to do something different for d1.cc
     # day t=t+1 data
         m12[1:(ndata-1) ,2] <- events01$mod$ch.st.l[2:ndata]
     m12.age[1:(ndata-1) ,2] <-  events01$mod$ch.age[2:ndata]
-    m12.doy[1:(ndata-1) ,2] <-  events01$mod$ch.doy[2:ndata]
+    m12.sdoy[1:(ndata-1) ,2] <-  events01$mod$ch.sdoy[2:ndata]
         m12.cc[            ,2] <- m12.cc[ ,1]
     # filter removing cluster of points near zero, NAs and day before and after which have ages of 0
     m.igood <- NULL
@@ -2095,10 +2134,10 @@ fn_lag_events01 <- function(events01, scale.doy) {
     ## combine
     om12      <- rbind(o12,m12)
     om12.age  <- rbind(o12.age,m12.age)
-    om12.sdoy <- rbind(o12.doy/scale.doy$obs, m12.doy/scale.doy$mod)
+    om12.sdoy <- rbind(o12.sdoy, m12.sdoy)
     ## scale doy via cos((doy - midsummer_doy)/yearlength)
-    tmp1.o    <- (o12.doy-median(events01$obs$hotseas$hotSdoy))/scale.doy$obs
-    tmp1.m    <- (m12.doy-median(events01$mod$hotseas$hotSdoy))/scale.doy$mod
+    tmp1.o    <- o12.sdoy  #-median(events01$obs$hotseas$hotSdoy))
+    tmp1.m    <- m12.sdoy  #-median(events01$mod$hotseas$hotSdoy))
     om12.cosd <- cos(2*pi*(rbind(tmp1.o,tmp1.m)))
     om12.cc   <- rbind(o12.cc ,m12.cc )
     om12.iobs <- rbind(array(1,dim=dim(o12.cc)), array(0,dim=dim(m12.cc)))
@@ -2114,8 +2153,8 @@ fn_lag_events01 <- function(events01, scale.doy) {
         # points(om.1E1,om12[om.1E1,2],col=4,pch=1,cex=1)
 
     lag01 <- list()
-    lag01$obs <- list(o12 =o12,   o12.age=o12.age,      o12.doy=o12.doy,    o12.cc=o12.cc,                    o.iday1E1=o.iday1E1, o.iday1G1=o.iday1G1)
-    lag01$mod <- list(m12 =m12,   m12.age=m12.age,      m12.doy=m12.doy,    m12.cc=m12.cc,                    m.iday1E1=m.iday1E1, m.iday1G1=m.iday1G1)
+    lag01$obs <- list(o12 =o12,   o12.age=o12.age,      o12.sdoy=o12.sdoy, o12.cc=o12.cc,   o.iday1E1=o.iday1E1, o.iday1G1=o.iday1G1)
+    lag01$mod <- list(m12 =m12,   m12.age=m12.age,      m12.sdoy=m12.sdoy, m12.cc=m12.cc,   m.iday1E1=m.iday1E1, m.iday1G1=m.iday1G1)
     lag01$om  <- list(om12=om12, om12.age=om12.age,   om12.sdoy=om12.sdoy, om12.cc=om12.cc, om12.iobs=om12.iobs,
                                om12.class=om12.class, om12.cosd=om12.cosd, om.1E1=om.1E1,       om.1G1=om.1G1)
     return(lag01)
@@ -2753,10 +2792,10 @@ fn_termJointGLMPlot2 <- function(hw.term1N, st.pdf=NULL){
 
 ### GAM Termination models
 ##############################################################################
-fn_fitJointTermGAM <- function(events01, gamfmla, scale.doy, stdiag=NULL, stplot=NULL, DOPLOT=FALSE  ){
+fn_fitJointTermGAM <- function(events01, gamfmla, stdiag=NULL, stplot=NULL, DOPLOT=FALSE  ){
 
     # NB events AND fmla must be preselected to be whole year or for hotseas as required
-    # gamfmla$day1 & gamfmla$dayN
+    # NB gamfmla == gamfmla$day1 & gamfmla$dayN
     cat("fn_fitJointTermGAM: NB events01 AND fmla must be preselected to be ally or hotseas", cr)
 
     if(!is.null(stdiag)) conDiag    <- file(stdiag,'w')
@@ -2764,7 +2803,7 @@ fn_fitJointTermGAM <- function(events01, gamfmla, scale.doy, stdiag=NULL, stplot
     # if(!is.null(stdiag)) writeLines(capture.output(print()), con=conDiag)
     if(!is.null(stplot)) pdf(file=stplot, 10, 10)
 
-    lag01 <- fn_lag_events01(events01, scale.doy)
+    lag01 <- fn_lag_events01(events01)
     list2env(lag01$om,env=parent.frame())
 
     # remove non-relevant values
@@ -2881,23 +2920,25 @@ fn_fitJointTermGAM <- function(events01, gamfmla, scale.doy, stdiag=NULL, stplot
                 if(is.null(stplot)) readline("Continue to next/end?")
             }
         }
+        names(term.1) <- names(gamfmla$day1)
+        names(term.N) <- names(gamfmla$dayN)
     }
     writeLines("###################################",       con=conDiag)
 
-all1.aic        <- lapply(term.1, AIC)
-all1.bic        <- lapply(term.1, BIC)
-names(all1.bic) <- names(gamfmla$day1)
-isbic1 <- sort(unlist(all1.bic), index.return=TRUE)$ix
+    # all1.aic        <- lapply(term.1, AIC)
+    # all1.bic        <- lapply(term.1, BIC)
+    # names(all1.bic) <- names(gamfmla$day1)
+    # isbic1 <- sort(unlist(all1.bic), index.return=TRUE)$ix
 
-allN.aic        <- lapply(term.N, AIC)
-allN.bic        <- lapply(term.N, BIC)
-names(allN.bic) <- names(gamfmla$dayN)
-isbicN <- sort(unlist(allN.bic), index.return=TRUE)$ix
+    # allN.aic        <- lapply(term.N, AIC)
+    # allN.bic        <- lapply(term.N, BIC)
+    # names(allN.bic) <- names(gamfmla$dayN)
+    # isbicN <- sort(unlist(allN.bic), index.return=TRUE)$ix
 
-    writeLines("\n\n### BIC,AIC Day 1 Termination GAM model ###",                     con=conDiag)
-    for(i in isbic1) writeLines(capture.output(print( paste(names(fmla1[i]),'\t\t\t',myround(all1.bic[[i]]),myround(all1.aic[[i]]))) ),  con=conDiag)
-    writeLines("\n\n### BIC,AIC Day N Termination GAM model ###",                     con=conDiag)
-    for(i in isbicN) writeLines(capture.output(print( paste(names(fmlaN[i]),'\t\t\t',myround(allN.bic[[i]]),myround(allN.aic[[i]]))) ),  con=conDiag)
+    # writeLines("\n\n### BIC,AIC Day 1 Termination GAM model ###",                     con=conDiag)
+    # for(i in isbic1) writeLines(capture.output(print( paste(names(fmla1[i]),'\t\t\t',myround(all1.bic[[i]]),myround(all1.aic[[i]]))) ),  con=conDiag)
+    # writeLines("\n\n### BIC,AIC Day N Termination GAM model ###",                     con=conDiag)
+    # for(i in isbicN) writeLines(capture.output(print( paste(names(fmlaN[i]),'\t\t\t',myround(allN.bic[[i]]),myround(allN.aic[[i]]))) ),  con=conDiag)
     # writeLines(capture.output(print() ),                        con=conDiag)
     # writeLines(capture.output(print() ),                        con=conDiag)
 
@@ -2916,8 +2957,6 @@ isbicN <- sort(unlist(allN.bic), index.return=TRUE)$ix
     if(!is.null(stdiag)) close(conDiag)
     if(!is.null(stplot)) dev.off()
 
-    names(term.1) <- names(gamfmla$day1)
-    names(term.N) <- names(gamfmla$dayN)
     return(list(day1=term.1, dayN=term.N))
 }
 
@@ -2934,9 +2973,9 @@ fn_termJointGAMPlot <- function(hw.term, main0='Term Day=>? ~', st.pdf=NULL){
     hw.cov <- hw.term$model
     cov.n  <- attributes(hw.term$terms)$term.labels
     if(any(grepl('class',cov.n))) {
-        ISCLASS <- TRUE
+        ISFACTOR <- TRUE
         cov.n  <- cov.n[cov.n!='class']
-    } else ISCLASS <- FALSE
+    } else ISFACTOR <- FALSE
 
     cov.q  <- NULL
     cov.x  <- NULL
@@ -2955,7 +2994,7 @@ fn_termJointGAMPlot <- function(hw.term, main0='Term Day=>? ~', st.pdf=NULL){
     df1$A <- 5
     df0   <- df1
     up.2by3()
-    if(ISCLASS) {
+    if(ISFACTOR) {
         df1$class <- 'obs'
         df0$class <- 'mod'
         for(i in seq_along(cov.n)) {
@@ -3012,9 +3051,24 @@ fn_termJointGAMPlot2 <- function(hw.term1N, st.pdf=NULL){
             hw.cov <- hw.term$model
             cov.n  <- attributes(hw.term$terms)$term.labels
             if(any(grepl('class',cov.n))) {
-                ISCLASS <- TRUE
+                ISFACTOR <- TRUE
                 cov.n  <- cov.n[cov.n!='class']
-            } else ISCLASS <- FALSE
+            } else ISFACTOR <- FALSE
+
+            # # not sure now is the time to embark on this rewrite
+            # hw.cov <- hw.term$model
+            # cov.n  <- attributes(hw.term$terms)$term.labels
+            # lfactor <- grepl("factor",attr(terms(hw.term$model),"dataClasses")[-1])  # first term is response, so remove
+            # if(any(lfactor)) {
+            #     ISFACTOR <- TRUE
+            #     cov.n    <- cov.n[!lfactor]
+            #     fac.n    <- names(attr(terms(hw.term$model),"dataClasses")[-1])[lfactor]
+            #     fac.l    <- levels(hw.term$model[[fac.n]])
+            # } else {
+            #     ISFACTOR <- FALSE
+            #     fac.n    <- NULL
+            # }
+   
             cov.q  <- NULL
             cov.x  <- NULL
             for(i in seq_along(cov.n)) {
@@ -3029,7 +3083,7 @@ fn_termJointGAMPlot2 <- function(hw.term1N, st.pdf=NULL){
             df0   <- df1
             up.2by3()
             par(mar=c(5,5,2,1))
-            if(ISCLASS) {
+            if(ISFACTOR) {
                 df1$class <- 'obs'
                 df0$class <- 'mod'
                 for(i in seq_along(cov.n)) {
@@ -3069,9 +3123,9 @@ fn_termJointGAMPlot2 <- function(hw.term1N, st.pdf=NULL){
                 hw.cov <- hw.term2$model
                 cov.n  <- attributes(hw.term2$terms)$term.labels
                 if(any(grepl('class',cov.n))) {
-                    ISCLASS <- TRUE
+                    ISFACTOR <- TRUE
                     cov.n  <- cov.n[cov.n!='class']
-                } else ISCLASS <- FALSE
+                } else ISFACTOR <- FALSE
                 cov.q  <- NULL
                 cov.x  <- NULL
                 for(i in seq_along(cov.n)) {
@@ -3086,7 +3140,7 @@ fn_termJointGAMPlot2 <- function(hw.term1N, st.pdf=NULL){
                 df0   <- df1
                 up.2by3()
                 par(mar=c(5,5,2,1))
-                if(ISCLASS) {
+                if(ISFACTOR) {
                     df1$class <- 'obs'
                     df0$class <- 'mod'
                     for(i in seq_along(cov.n)) {

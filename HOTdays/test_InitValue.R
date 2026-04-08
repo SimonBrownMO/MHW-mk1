@@ -21,7 +21,6 @@ if(FALSE) {
     load(st_msdata01, verb=TRUE)
 
     gpd.th.u  <- initV$th.u
-    scale.doy <- list(obs=data01.std.param$doy$o_max, mod=data01.std.param$doy$m_max)
 
     ### ensure the doy basis fn is consistent with hotseason if present
     if(events01$info$USEHOTSEASON & events01$hotseas$IsHotSeason) {
@@ -32,7 +31,7 @@ if(FALSE) {
 
     allIVfits <- list()
     for(i in seq_along(fmla.IVgpd)) {
-        allIVfits[[i]]      <- fn_fitInitVal(events01, gpd.th.u, scale.doy, fmla.IVgpd[[i]], IsJoint=TRUE)
+        allIVfits[[i]]      <- fn_fitInitVal(events01, gpd.th.u, fmla.IVgpd[[i]], IsJoint=TRUE)
         allIVfits[[i]]$name <- names(fmla.IVgpd)[i]
         cat("Fitted IV",i,names(fmla.IVgpd)[i],cr)
     }

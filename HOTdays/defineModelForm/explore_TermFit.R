@@ -146,10 +146,24 @@ termGAM.fmla$ally <- list(day1=day1, dayN=dayN)
     names(termJgam.s$day1) <- names(GAMfmla$day1)
     names(termJgam.s$dayN) <- names(GAMfmla$dayN)
 
-    GAMfmla  <- termGAM.fmla$ally
+    GAMfmla    <- termGAM.fmla$ally
     termJgam.a <- fn_fitJointTermGAM(events01$events01_ally, GAMfmla, scale.doy, stdiag='explore-term-diag.ally.gam.txt', stplot='explore-term-diag.ally.gam.pdf', DOPLOT=TRUE)
     names(termJgam.a$day1) <- names(GAMfmla$day1)
     names(termJgam.a$dayN) <- names(GAMfmla$dayN)
+
+    ### test single fit
+    GAMfmla     <- termGAM.fmla$hseas
+    i1          <- "TICD"   # grep("TICD",  names(GAMfmla$day1))
+    i2          <- "TICDA"  # grep("TICDA", names(GAMfmla$dayN))
+    GAMfmla1    <- list(day1=GAMfmla$day1[i1], dayN=GAMfmla$dayN[i2])
+    termJgam.s1 <- fn_fitJointTermGAM(events01, GAMfmla1, scale.doy, stdiag='explore-term-diag1.hotseas.gam.txt', stplot='explore-term-diag1.hotseas.gam.pdf', DOPLOT=TRUE)
+
+    GAMfmla     <- termGAM.fmla$ally
+    i1          <- "TICD"   # grep("TICD",  names(GAMfmla$day1))
+    i2          <- "TICDA"  # grep("TICDA", names(GAMfmla$dayN))
+    GAMfmla1    <- list(day1=GAMfmla$day1[i1], dayN=GAMfmla$dayN[i2])
+    termJgam.a1 <- fn_fitJointTermGAM(events01, GAMfmla1, scale.doy, stdiag='explore-term-diag1.ally.gam.txt', stplot='explore-term-diag1.ally.gam.pdf', DOPLOT=TRUE)
+
 
 ### plot the effect of covariates on probability of a HW terminating
 # fn_termJointGAMPlot(termJgam$dayN$TICDA,main='Day N ~')

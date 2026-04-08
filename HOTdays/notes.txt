@@ -1,0 +1,6 @@
+# HOTdays notes
+
+2026.04.07
+    - really need a rewrite of all the fitting code so that model definitions all occurs outsifde of the main fitting functions and steps.
+    - ie it all occurs in the defineModelForm directory
+    - at the moment it is half and half

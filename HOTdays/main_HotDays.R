@@ -3,6 +3,7 @@
 # sbatch --time=210 --mem=30000 -o $PWD/main.R.rout --wrap="Rscript $PWD/main.R"
 # sbatch --qos=long --time=4000 --mem=30000 -o $PWD/main.R.rout --wrap="Rscript $PWD/main.R"
 # 2023-06-02 start to doJointMakeStationary.R took 2.4h
+# sbatch --time=180 --mem=10000 -o $PWD/main_HotDays.20260407.rout --wrap="Rscript $PWD/main_HotDays.R /home/users/simon.brown/extremes/heatwaves/mhw/DATA/UKV/v5/MSref/ostia_cdr_nrt_regions.MSref.2026-03-26.RData"
 
 library(glue)
 
@@ -59,17 +60,11 @@ if(!any(TESTINBATCH)) {
 
  if (!file.exists(HDconfig$files$st_Term)) {
     ### extract events #####################################
-        # source(paste(st.pwd,"/doExtractEvents.R",sep=''))
-        # iobs <- which(data01$isobs==1)
-        # if(DOEVENTSPLOT) fn_plotEvents(events01$obs, data01[iobs,], nplot=3, savefile=sub('Events/ukgd','Events/plots/ukgd',sub('.RData','.pdf',st_events)) )
-        # cat("HotDays main: Completed doExtractEvents.R",cr,"#########################",cr,cr)
+        # see main_ExtractEvents.R
 
     ### doFitInitEvent.R ##################################### MEDIUM-SLOW
         source(paste(st.pwd,"/doFitInitEvent.R",sep=''))
         cat("HotDays main: Completed doFitInitEvent.R",cr,"#########################",cr,cr)
-readline("Stop2")
-
-NEED TO GO TO defineModelForm/ and work the joint models up there
 
     ### doFitInitValue.R ##################################### FAST
         source(paste(st.pwd,"/doFitInitValue.R",sep=''))
@@ -83,8 +78,6 @@ NEED TO GO TO defineModelForm/ and work the joint models up there
         source(paste(st.pwd,"/doFitTerm.R",sep=''))
         # save_metadata(fin=paste(st.pwd,"/"),fout=stmetadata)       ### need to add appending
         cat("HotDays main: Completed doFitTerm.R",cr,"#########################",cr,cr)
-
-
         cat("st_Term",HDconfig$files$st_Term,cr,cr)
 
     cat("###############################################################################",cr)

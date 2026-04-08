@@ -34,6 +34,56 @@ list2env(HDconfig$initV , envir = .GlobalEnv)
 gpd.th.u  <- initV$th.u
 scale.doy <- list(obs=(366+1), mod=(360+1)) # bit of a bodge as assumes all obs are from leap years
 
+####### evgam fomula to fit
+#### ally
+fmla.IVgpd             <- list()
+fmla.IVgpd$S0.G0       <- list(excess ~ 1                                                                                                            , ~ 1 )
+fmla.IVgpd$SB.G0       <- list(excess ~ class                                                                                                        , ~ 1 )
+fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ 1 )
+fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+
+fmla.IVgpd$S0.GB       <- list(excess ~ 1                                                                                                            , ~ class )
+fmla.IVgpd$SB.GB       <- list(excess ~ class                                                                                                        , ~ class )
+fmla.IVgpd$SBD.GB      <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0D.GB      <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0T.GB      <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$S0DT.GB     <- list(excess ~        s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs="cc",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("cc","ts")) , ~ class )
+initV$fmla.ally.IVgpd <- fmla.IVgpd
+
+#### hotseas
+fmla.IVgpd             <- list()
+fmla.IVgpd$S0.G0       <- list(excess ~ 1                                                                                                            , ~ 1 )
+fmla.IVgpd$SB.G0       <- list(excess ~ class                                                                                                        , ~ 1 )
+fmla.IVgpd$SBD.G0      <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+fmla.IVgpd$SBDT.G0     <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SBDTi.G0    <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$Si.G0       <- list(excess ~                                                                              ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$SBi.G0      <- list(excess ~ class                                                                       +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$SDTi.G0     <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ 1 )
+fmla.IVgpd$ST.G0       <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ 1 )
+fmla.IVgpd$SD.G0       <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ 1 )
+
+fmla.IVgpd$S0.GB       <- list(excess ~ 1                                                                                                            , ~ class )
+fmla.IVgpd$SB.GB       <- list(excess ~ class                                                                                                        , ~ class )
+fmla.IVgpd$SBD.GB      <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0D.GB      <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class)                                                                 , ~ class )
+fmla.IVgpd$S0T.GB      <- list(excess ~                                               s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$S0DT.GB     <- list(excess ~        s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst)                                  , ~ class )
+fmla.IVgpd$SBDTi.GB    <- list(excess ~ class +s(sdoy, bs="ts",k=iv.k$sdoy,by=class) +s(gmst, bs="ts", k=iv.k$gmst) +ti(sdoy, gmst, bs=c("ts","ts")) , ~ class )
+initV$fmla.hseas.IVgpd <- fmla.IVgpd
+
+
+
+
+
+
 ### choose use hotseason or not
 ## DO HOTSEASON
 # do.events        <- events01
@@ -97,6 +147,16 @@ summary(allIVfits[[isbic[2]]])
 cat(cr,cr,"##############################",cr,"next",cr)
 cat(names(fmla.IVgpd)[isbic[3]],allIVfits.bic[[isbic[3]]],cr)
 summary(allIVfits[[isbic[3]]])
+
+cat(cr,cr,"##############################",cr,"SD.G0",cr)
+i1 <- which(names(fmla.IVgpd)[isbic]=='SD.G0')
+cat(names(fmla.IVgpd)[isbic[i1]],allIVfits.bic[[isbic[i1]]],cr)
+summary(allIVfits[[isbic[i1]]])
+
+cat(cr,cr,"##############################",cr,"SBD.GB",cr)
+i1 <- which(names(fmla.IVgpd)[isbic]=='SBD.GB')
+cat(names(fmla.IVgpd)[isbic[i1]],allIVfits.bic[[isbic[i1]]],cr)
+summary(allIVfits[[isbic[i1]]])
 
 # ### 2026.04.01 - for whole year SBD.GB seems the way to go
 # allyear (hotseason similar)
